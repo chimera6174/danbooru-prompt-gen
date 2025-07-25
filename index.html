@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Danbooru Prompt Generator</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -11,445 +11,219 @@
       --mantle: #1a1614;
       --crust: #0f0d0c;
       --text: #e3d8c9;
-      --subtext1: #c5b7a3;
-      --subtext0: #a09585;
-      --overlay2: #7a6e64;
-      --overlay1: #5a5149;
-      --overlay0: #3a3530;
-      --surface2: #402f28;
-      --surface1: #352c26;
-      --surface0: #2a231e;
-      --red: #9a2a2a;
-      --maroon: #6d1e1e;
+      --subtext: #c5b7a3;
+      --overlay: #5a5149;
+      --surface: #2a231e;
+      --accent: #d4875d;
+      --highlight: #7a6a9a;
       --green: #5c7c46;
-      --peach: #d4875d;
-      --blue: #3a5a7a;
-      --lavender: #7a6a9a;
-      --yellow: #d4af37;
-      --rosewater: #e7c8a9;
-      --flamingo: #c96d6d;
-      --pink: #b26888;
-      --mauve: #8a6a9a;
-      --teal: #4a8a8a;
-      --sky: #6a9aaa;
+      --red: #9a2a2a;
     }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, var(--mantle) 0%, var(--base) 100%);
+      background: var(--mantle);
       color: var(--text);
-      line-height: 1.6;
-      padding: 1rem;
-      min-height: 100vh;
+      line-height: 1.4;
+      padding: 0.5rem;
     }
-
     .container {
-      max-width: 1200px;
-      margin: 0 auto;
+      max-width: 800px;
+      margin: auto;
+      padding-bottom: 2rem;
     }
-
     header {
       text-align: center;
-      padding: 2rem 0 1.5rem;
-      position: relative;
+      padding: 1rem 0;
     }
-
     header h1 {
-      color: var(--lavender);
-      font-size: 2.5rem;
-      margin-bottom: 0.5rem;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      font-size: 1.8rem;
+      color: var(--highlight);
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 1rem;
+      gap: 0.5rem;
     }
-
     header p {
-      color: var(--subtext0);
-      max-width: 600px;
-      margin: 0 auto;
-      font-size: 1.1rem;
+      font-size: 0.95rem;
+      color: var(--subtext);
     }
 
     .prompt-container {
-      background: var(--mantle);
-      border-radius: 12px;
-      padding: 1.5rem;
-      margin-bottom: 2rem;
-      border: 1px solid var(--overlay0);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-    }
-
-    textarea {
-      width: 100%;
-      height: 120px;
-      background: var(--surface0);
-      color: var(--text);
-      border: 1px solid var(--overlay0);
+      background: var(--surface);
       border-radius: 8px;
       padding: 1rem;
-      font-size: 1rem;
+      margin: 1rem 0;
+    }
+    textarea {
+      width: 100%;
+      min-height: 100px;
+      background: var(--base);
+      color: var(--text);
+      border: 1px solid var(--overlay);
+      border-radius: 6px;
+      padding: 0.8rem;
+      font-size: 0.95rem;
       resize: vertical;
-      transition: border-color 0.3s;
     }
-
-    textarea:focus {
-      outline: none;
-      border-color: var(--lavender);
-    }
-
     .prompt-info {
       display: flex;
       justify-content: space-between;
+      font-size: 0.85rem;
+      color: var(--subtext);
       margin-top: 0.5rem;
-      color: var(--subtext0);
-      font-size: 0.9rem;
     }
-
     .controls {
       display: flex;
-      gap: 1rem;
-      margin-top: 1rem;
       flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.8rem;
     }
-
     button {
-      padding: 0.8rem 1.5rem;
-      border-radius: 8px;
+      flex: 1;
+      padding: 0.6rem;
       border: none;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
+      border-radius: 6px;
+      font-size: 0.9rem;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      justify-content: center;
+      gap: 0.4rem;
+      cursor: pointer;
+      transition: transform 0.2s;
     }
-
-    .clear-btn {
-      background: var(--red);
-      color: white;
-    }
-
-    .clear-btn:hover {
-      background: var(--maroon);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(154, 42, 42, 0.3);
-    }
-
-    .copy-btn {
-      background: var(--teal);
-      color: white;
-    }
-
-    .copy-btn:hover {
-      background: var(--blue);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(58, 90, 122, 0.3);
-    }
-
-    .random-btn {
-      background: var(--mauve);
-      color: white;
-    }
-
-    .random-btn:hover {
-      background: var(--pink);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(138, 106, 154, 0.3);
-    }
+    button:hover { transform: translateY(-1px); }
+    .clear-btn { background: var(--red); color: #fff; }
+    .copy-btn  { background: var(--green); color: #fff; }
+    .random-btn{ background: var(--highlight); color: #fff; }
 
     .custom-tag-container {
-      margin-top: 1.5rem;
-      background: var(--surface0);
+      background: var(--surface);
       border-radius: 8px;
-      padding: 1.5rem;
-      border: 1px solid var(--overlay0);
+      padding: 0.8rem;
+      margin-top: 1rem;
     }
-
     .custom-tag-container h3 {
-      color: var(--peach);
-      margin-bottom: 1rem;
+      font-size: 1rem;
+      color: var(--accent);
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.4rem;
+      margin-bottom: 0.6rem;
     }
-
     .custom-tag-input {
       display: flex;
-      gap: 0.5rem;
+      gap: 0.4rem;
     }
-
     .custom-tag-input input {
       flex: 1;
-      padding: 0.8rem 1rem;
-      background: var(--surface1);
+      padding: 0.6rem;
+      border-radius: 6px;
+      border: 1px solid var(--overlay);
+      background: var(--base);
       color: var(--text);
-      border: 1px solid var(--overlay0);
-      border-radius: 8px;
-      font-size: 1rem;
+      font-size: 0.9rem;
     }
-
-    .custom-tag-input input:focus {
-      outline: none;
-      border-color: var(--lavender);
-    }
-
     .custom-tag-input button {
       background: var(--green);
-      color: white;
-    }
-
-    .custom-tag-input button:hover {
-      background: #4a6b38;
-      transform: translateY(-2px);
+      color: #fff;
+      padding: 0.6rem;
+      border-radius: 6px;
     }
 
     .categories-container {
-      display: grid;
-      gap: 1.5rem;
+      margin-top: 1rem;
     }
-
     .category-card {
-      background: var(--mantle);
-      border-radius: 12px;
+      background: var(--surface);
+      border-radius: 8px;
+      margin-bottom: 0.8rem;
       overflow: hidden;
-      border: 1px solid var(--overlay0);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      border: 1px solid var(--overlay);
     }
-
     .category-header {
-      padding: 1rem 1.5rem;
-      background: var(--surface0);
-      cursor: pointer;
+      padding: 0.7rem 1rem;
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      align-items: center;
-      transition: background 0.3s;
+      cursor: pointer;
     }
-
-    .category-header:hover {
-      background: var(--overlay0);
-    }
-
     .category-header h2 {
-      color: var(--peach);
-      font-size: 1.4rem;
+      font-size: 1rem;
+      color: var(--accent);
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.4rem;
     }
+    .category-header i {
+      transition: transform 0.3s;
+      transform: rotate(180deg);
+    }
+    .category-card.collapsed .category-header i { transform: rotate(0deg); }
 
     .tag-section {
+      padding: 0.8rem 1rem;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 1rem;
-      padding: 1.5rem;
-      max-height: 500px;
-      overflow-y: auto;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 0.5rem;
+      /* Removed fixed height and scroll */
     }
-
     .tag-container {
-      background: var(--surface0);
-      border-radius: 8px;
-      padding: 1rem;
-      border: 1px solid var(--overlay0);
-      transition: all 0.3s ease;
-      cursor: pointer;
-    }
-
-    .tag-container:hover {
-      transform: translateY(-5px);
-      border-color: var(--lavender);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    }
-
-    .tag {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: bold;
-      color: var(--rosewater);
-      background: var(--surface1);
-      padding: 0.5rem 0.8rem;
+      background: var(--base);
       border-radius: 6px;
-      transition: background-color 0.3s;
-      font-size: 1.1rem;
+      padding: 0.6rem;
+      border: 1px solid var(--overlay);
+      cursor: pointer;
+      transition: transform 0.2s;
     }
-
-    .tag:hover {
-      background: var(--surface2);
-    }
-
-    .description {
-      font-size: 0.9rem;
-      color: var(--subtext0);
-      min-height: 40px;
-    }
-
-    .counter {
-      background: var(--blue);
-      color: white;
-      padding: 0.3rem 0.8rem;
-      border-radius: 20px;
-      font-size: 0.9rem;
-      font-weight: bold;
-    }
+    .tag-container:hover { transform: translateY(-2px); }
+    .tag { font-size: 0.95rem; font-weight: bold; color: var(--text); margin-bottom: 0.3rem; }
+    .description { font-size: 0.8rem; color: var(--subtext); }
 
     footer {
       text-align: center;
-      padding: 2rem 0;
-      color: var(--subtext0);
-      font-size: 0.9rem;
-      margin-top: 2rem;
-      border-top: 1px solid var(--overlay0);
+      font-size: 0.8rem;
+      color: var(--subtext);
+      margin-top: 1rem;
     }
 
-    /* Responsive design */
-    @media (max-width: 768px) {
-      .tag-section {
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      }
-      
-      header h1 {
-        font-size: 2rem;
-      }
-      
-      .category-header h2 {
-        font-size: 1.2rem;
-      }
-      
-      .controls {
-        flex-direction: column;
-      }
-      
-      button {
-        width: 100%;
-        justify-content: center;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .tag-section {
-        grid-template-columns: 1fr;
-      }
-      
-      .prompt-container, .category-card {
-        padding: 1rem;
-      }
-    }
-
-    /* Scrollbar styling */
-    .tag-section::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    .tag-section::-webkit-scrollbar-track {
-      background: var(--surface0);
-      border-radius: 4px;
-    }
-
-    .tag-section::-webkit-scrollbar-thumb {
-      background: var(--lavender);
-      border-radius: 4px;
-    }
-
-    .tag-section::-webkit-scrollbar-thumb:hover {
-      background: var(--mauve);
-    }
-
-    /* Animation for category expansion */
-    .category-card.collapsed .tag-section {
-      max-height: 0;
-      padding: 0;
-      overflow: hidden;
-    }
-
-    .category-card.collapsed .category-header i {
-      transform: rotate(0deg);
-    }
-
-    .category-header i {
-      transition: transform 0.3s ease;
-      transform: rotate(180deg);
-    }
-
-    /* Toast notification */
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: var(--surface0);
-      color: var(--text);
-      padding: 1rem 2rem;
-      border-radius: 8px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-      transform: translateY(100px);
-      opacity: 0;
-      transition: all 0.3s ease;
-      z-index: 1000;
-      border-left: 4px solid var(--green);
-    }
-
-    .toast.show {
-      transform: translateY(0);
-      opacity: 1;
-    }
+    /* Collapsed tag-section */
+    .category-card.collapsed .tag-section { display: none; }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
       <h1><i class="fas fa-cube"></i> Danbooru Prompt Generator</h1>
-      <p>Create complex prompts for AI art generation by selecting tags from the categories below</p>
+      <p>Create complex prompts by selecting tags below</p>
     </header>
-    
     <div class="prompt-container">
       <textarea id="promptField" placeholder="Your prompt will appear here..."></textarea>
       <div class="prompt-info">
         <span>Tags: <span id="tagCount">0</span></span>
-        <span>Characters: <span id="charCount">0</span></span>
+        <span>Chars: <span id="charCount">0</span></span>
       </div>
       <div class="controls">
-        <button class="clear-btn" onclick="clearPrompt()">
-          <i class="fas fa-trash"></i> Clear Prompt
-        </button>
-        <button class="copy-btn" onclick="copyPrompt()">
-          <i class="fas fa-copy"></i> Copy to Clipboard
-        </button>
-        <button class="random-btn" onclick="addRandomTags()">
-          <i class="fas fa-random"></i> Add Random Tags
-        </button>
+        <button class="clear-btn" onclick="clearPrompt()"><i class="fas fa-trash"></i> Clear</button>
+        <button class="copy-btn" onclick="copyPrompt()"><i class="fas fa-copy"></i> Copy</button>
+        <button class="random-btn" onclick="addRandomTags()"><i class="fas fa-random"></i> Random</button>
       </div>
-      
-      <!-- Custom tag input -->
       <div class="custom-tag-container">
-        <h3><i class="fas fa-tag"></i> Add Custom Tag</h3>
+        <h3><i class="fas fa-tag"></i> Custom Tag</h3>
         <div class="custom-tag-input">
-          <input type="text" id="customTagInput" placeholder="Type your custom tag...">
-          <button onclick="addCustomTag()">
-            <i class="fas fa-plus"></i> Add
-          </button>
+          <input type="text" id="customTagInput" placeholder="e.g. epic_scene">
+          <button onclick="addCustomTag()"><i class="fas fa-plus"></i> Add</button>
         </div>
       </div>
     </div>
-    
     <div class="categories-container" id="categories"></div>
-    
-    <footer>
-      <p>Danbooru Prompt Generator v2.0 • Tags sourced from Danbooru community</p>
-    </footer>
+    <footer>Danbooru Prompt Generator v2.0</footer>
   </div>
-
-  <div class="toast" id="toast">Tag added successfully!</div>
-
+  <div class="toast" id="toast"></div>
   <script src="./tags.js"></script>
   <script>
+    // JS remains largely unchanged
     const categoriesDiv = document.getElementById("categories");
     const promptField = document.getElementById("promptField");
     const customTagInput = document.getElementById("customTagInput");
@@ -457,150 +231,54 @@
     const charCount = document.getElementById("charCount");
     const toast = document.getElementById("toast");
 
-    // Add tag to prompt function
     function addTagToPrompt(tag) {
       let current = promptField.value.split(',').map(t => t.trim()).filter(t => t);
       if (!current.includes(tag)) {
         current.push(tag);
         promptField.value = current.join(', ');
-        showToast(`"${tag}" added to prompt`);
+        showToast(`${tag} added`);
       }
-      
-      // Update counters
       updateCounters();
     }
-
-    // Add custom tag
     function addCustomTag() {
       const tag = customTagInput.value.trim();
-      if (tag) {
-        addTagToPrompt(tag);
-        customTagInput.value = '';
-      } else {
-        showToast("Please enter a tag", "error");
-      }
+      if (tag) { addTagToPrompt(tag); customTagInput.value = ''; }
+      else { showToast("Enter a tag", 'error'); }
     }
-
-    // Handle Enter key in custom tag input
-    customTagInput.addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        addCustomTag();
-      }
-    });
-
-    // Clear prompt function
-    function clearPrompt() {
-      promptField.value = "";
-      updateCounters();
-      showToast("Prompt cleared");
-    }
-
-    // Copy to clipboard
-    function copyPrompt() {
-      promptField.select();
-      document.execCommand('copy');
-      showToast("Prompt copied to clipboard!");
-    }
-
-    // Add random tags
+    customTagInput.addEventListener('keypress', e => { if (e.key==='Enter') addCustomTag(); });
+    function clearPrompt() { promptField.value=''; updateCounters(); showToast('Cleared'); }
+    function copyPrompt() { promptField.select(); document.execCommand('copy'); showToast('Copied'); }
     function addRandomTags() {
-      // Get all tags from all categories
-      const allTags = [];
-      for (const category in tagsByCategory) {
-        tagsByCategory[category].forEach(item => {
-          allTags.push(item.tag);
-        });
-      }
-      
-      // Shuffle and pick 5 random tags
-      const shuffled = [...allTags].sort(() => 0.5 - Math.random());
-      const selected = shuffled.slice(0, 5);
-      
-      // Add to prompt
-      selected.forEach(tag => addTagToPrompt(tag));
+      const all=[]; Object.values(tagsByCategory).forEach(arr=>arr.forEach(o=>all.push(o.tag)));
+      all.sort(()=>0.5-Math.random()).slice(0,5).forEach(addTagToPrompt);
     }
-
-    // Update counters
     function updateCounters() {
-      const tags = promptField.value.split(',').filter(t => t.trim() !== '');
+      const tags = promptField.value.split(',').filter(t=>t.trim());
       tagCount.textContent = tags.length;
-      
-      // Simple character count
       charCount.textContent = promptField.value.length;
     }
-
-    // Show toast notification
-    function showToast(message, type = "success") {
-      toast.textContent = message;
-      toast.className = "toast show";
-      
-      if (type === "error") {
-        toast.style.borderLeftColor = "var(--red)";
-      } else {
-        toast.style.borderLeftColor = "var(--green)";
-      }
-      
-      setTimeout(() => {
-        toast.className = "toast";
-      }, 3000);
+    function showToast(msg, type='success') {
+      toast.textContent=msg;
+      toast.className='toast show';
+      setTimeout(()=>toast.className='toast',1500);
     }
-
-    // Create category cards
-    for (const [category, tags] of Object.entries(tagsByCategory)) {
-      const card = document.createElement("div");
-      card.className = "category-card";
-      
-      const header = document.createElement("div");
-      header.className = "category-header";
-      header.onclick = function() {
-        card.classList.toggle("collapsed");
-      };
-      
-      const title = document.createElement("h2");
-      title.textContent = category;
-      title.innerHTML = `<i class="fas fa-folder"></i> ${category}`;
-      
-      const counter = document.createElement("span");
-      counter.className = "counter";
-      counter.textContent = tags.length + " tags";
-      
-      const icon = document.createElement("i");
-      icon.className = "fas fa-chevron-down";
-      
-      header.appendChild(title);
-      header.appendChild(counter);
-      header.appendChild(icon);
+    Object.entries(tagsByCategory).forEach(([cat,tags])=>{
+      const card=document.createElement('div'); card.className='category-card';
+      const header=document.createElement('div'); header.className='category-header';
+      header.onclick=()=>card.classList.toggle('collapsed');
+      header.innerHTML=`<h2><i class="fas fa-folder"></i> ${cat}</h2><i class="fas fa-chevron-down"></i>`;
       card.appendChild(header);
-      
-      const section = document.createElement("div");
-      section.className = "tag-section";
-      
-      tags.forEach(({ tag, desc }) => {
-        const tagEl = document.createElement("div");
-        tagEl.className = "tag";
-        tagEl.textContent = tag;
-        tagEl.onclick = () => addTagToPrompt(tag);
-        
-        const descEl = document.createElement("div");
-        descEl.className = "description";
-        descEl.textContent = desc;
-        
-        const container = document.createElement("div");
-        container.className = "tag-container";
-        container.appendChild(tagEl);
-        container.appendChild(descEl);
-        
-        section.appendChild(container);
+      const section=document.createElement('div'); section.className='tag-section';
+      tags.forEach(({tag,desc})=>{
+        const cont=document.createElement('div'); cont.className='tag-container';
+        cont.onclick=()=>addTagToPrompt(tag);
+        cont.innerHTML=`<div class="tag">${tag}</div><div class="description">${desc}</div>`;
+        section.appendChild(cont);
       });
-      
       card.appendChild(section);
       categoriesDiv.appendChild(card);
-    }
-
-    // Initialize counters
+    });
     updateCounters();
-    
-    // Update counters on input
     promptField.addEventListener('input', updateCounters);
   </script>
 </body>
