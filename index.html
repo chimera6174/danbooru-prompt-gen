@@ -2,11 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Danbooru Prompt Generator</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    /* Existing styles... */
     :root {
       --base: #231e1c;
       --mantle: #1a1614;
@@ -19,130 +18,552 @@
       --highlight: #7a6a9a;
       --green: #5c7c46;
       --red: #9a2a2a;
+      --blue: #4a7b9d;
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+    }    
+    
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: var(--mantle);
       color: var(--text);
-      line-height: 1.4;
+      line-height: 1.6;
       padding: 0.5rem;
+      background-image: radial-gradient(circle at 20% 30%, rgba(42, 35, 30, 0.4) 0%, transparent 80%), 
+                        radial-gradient(circle at 80% 70%, rgba(122, 106, 154, 0.2) 0%, transparent 80%);
+      min-height: 100vh;
     }
+    
     .container {
       max-width: 800px;
-      margin: auto;
-      padding-bottom: 2rem;
+      margin: 2rem auto;
+      padding: 1rem;
+      background: rgba(15, 13, 12, 0.8);
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--overlay);
+    }
+    
+    .container::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(to right, var(--accent), var(--highlight));
+      z-index: 10;
+    }
+    
+    header {
+      text-align: center;
+      padding: 1.5rem 0;
       position: relative;
     }
-    /* ... (other existing styles) ... */
-
-    /* NEW: Search bar styles */
+    
+    header h1 {
+      font-size: 2.2rem;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+      margin-bottom: 0.5rem;
+    }
+    
+    header p {
+      font-size: 1.05rem;
+      color: var(--subtext);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
     .search-container {
-      margin-bottom: 1rem;
       position: relative;
+      margin: 1.5rem 0;
+      background: var(--surface);
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
+    
+    .search-container label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+      color: var(--accent);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .search-input-group {
+      position: relative;
+      display: flex;
+    }
+    
     #tagSearchInput {
-      width: 100%;
-      padding: 0.6rem;
+      flex: 1;
+      padding: 0.8rem 1rem 0.8rem 3rem;
       border-radius: 6px;
       border: 1px solid var(--overlay);
       background: var(--base);
       color: var(--text);
-      font-size: 0.9rem;
+      font-size: 1rem;
+      transition: all 0.3s;
     }
-
-    /* NEW: Suggestions dropdown */
+    
+    #tagSearchInput:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(212, 135, 93, 0.3);
+    }
+    
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--subtext);
+      font-size: 1.2rem;
+    }
+    
     .suggestions-dropdown {
       position: absolute;
+      top: calc(100% + 5px);
+      left: 0;
+      right: 0;
       background: var(--surface);
       border: 1px solid var(--overlay);
-      border-radius: 6px;
-      max-height: 200px;
+      border-radius: 8px;
+      max-height: 300px;
       overflow-y: auto;
-      width: 100%;
       z-index: 100;
       display: none;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
     }
+    
     .suggestion-item {
-      padding: 0.6rem;
+      padding: 0.8rem 1rem;
       cursor: pointer;
       border-bottom: 1px solid var(--overlay);
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
     }
+    
     .suggestion-item:last-child {
       border-bottom: none;
     }
-    .suggestion-item .tag {
-      font-weight: bold;
-      font-size: 0.9rem;
-      color: var(--text);
-    }
-    .suggestion-item .description {
-      font-size: 0.8rem;
-      color: var(--subtext);
-    }
+    
     .suggestion-item:hover {
       background: var(--base);
     }
-
-    /* NEW: Toast position adjustment */
+    
+    .suggestion-category {
+      background: var(--highlight);
+      color: white;
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-weight: bold;
+      flex-shrink: 0;
+      width: 120px;
+      text-align: center;
+    }
+    
+    .suggestion-tag {
+      font-weight: bold;
+      font-size: 0.95rem;
+      color: var(--text);
+      flex: 1;
+    }
+    
+    .suggestion-description {
+      font-size: 0.85rem;
+      color: var(--subtext);
+      margin-top: 0.2rem;
+    }
+    
+    .prompt-container {
+      background: var(--surface);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      background: var(--base);
+      color: var(--text);
+      border: 1px solid var(--overlay);
+      border-radius: 8px;
+      padding: 1rem;
+      font-size: 1rem;
+      resize: vertical;
+      transition: all 0.3s;
+    }
+    
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(122, 106, 154, 0.3);
+    }
+    
+    .prompt-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      color: var(--subtext);
+      margin-top: 0.8rem;
+      padding: 0 0.5rem;
+    }
+    
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-top: 1.2rem;
+    }
+    
+    button {
+      flex: 1;
+      padding: 0.8rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      min-width: 150px;
+    }
+    
+    button:hover { 
+      transform: translateY(-2px); 
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .clear-btn { 
+      background: var(--red); 
+      color: #fff; 
+    }
+    
+    .copy-btn  { 
+      background: var(--green); 
+      color: #fff; 
+    }
+    
+    .random-btn { 
+      background: var(--blue); 
+      color: #fff; 
+    }
+    
+    .custom-tag-container {
+      background: rgba(42, 35, 30, 0.7);
+      border-radius: 8px;
+      padding: 1.2rem;
+      margin-top: 1.5rem;
+      border: 1px dashed var(--overlay);
+    }
+    
+    .custom-tag-container h3 {
+      font-size: 1.1rem;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.8rem;
+    }
+    
+    .custom-tag-input {
+      display: flex;
+      gap: 0.6rem;
+      position: relative;
+    }
+    
+    .custom-tag-input input {
+      flex: 1;
+      padding: 0.8rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--overlay);
+      background: var(--base);
+      color: var(--text);
+      font-size: 1rem;
+    }
+    
+    .custom-tag-input input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(212, 135, 93, 0.3);
+    }
+    
+    .custom-tag-input button {
+      background: var(--accent);
+      color: #fff;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      min-width: auto;
+    }
+    
+    .categories-container {
+      margin-top: 1.5rem;
+    }
+    
+    .category-card {
+      background: var(--surface);
+      border-radius: 10px;
+      margin-bottom: 1.2rem;
+      overflow: hidden;
+      border: 1px solid var(--overlay);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      transition: all 0.3s;
+    }
+    
+    .category-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+    }
+    
+    .category-header {
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      background: rgba(42, 35, 30, 0.7);
+      transition: background 0.3s;
+    }
+    
+    .category-header:hover {
+      background: rgba(42, 35, 30, 0.9);
+    }
+    
+    .category-header h2 {
+      font-size: 1.2rem;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    
+    .category-header i {
+      transition: transform 0.3s;
+      transform: rotate(180deg);
+    }
+    
+    .category-card.collapsed .category-header i { 
+      transform: rotate(0deg); 
+    }
+    
+    .tag-section {
+      padding: 1.2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 0.8rem;
+      background: rgba(35, 30, 28, 0.5);
+    }
+    
+    .tag-container {
+      background: var(--base);
+      border-radius: 8px;
+      padding: 1rem;
+      border: 1px solid var(--overlay);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .tag-container:hover { 
+      transform: translateY(-3px); 
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      border-color: var(--accent);
+    }
+    
+    .tag { 
+      font-size: 1rem; 
+      font-weight: bold; 
+      color: var(--text); 
+      margin-bottom: 0.4rem; 
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    
+    .tag i {
+      color: var(--highlight);
+    }
+    
+    .description { 
+      font-size: 0.85rem; 
+      color: var(--subtext); 
+    }
+    
+    footer {
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--subtext);
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--overlay);
+    }
+    
+    .category-card.collapsed .tag-section { 
+      display: none; 
+    }
+    
     .toast {
       position: fixed;
-      bottom: 20px;
+      bottom: 30px;
       left: 50%;
-      transform: translateX(-50%);
+      transform: translateX(-50%) translateY(100px);
       background: var(--accent);
       color: white;
-      padding: 10px 20px;
-      border-radius: 4px;
+      padding: 12px 24px;
+      border-radius: 8px;
       opacity: 0;
-      transition: opacity 0.3s;
+      transition: all 0.3s;
       z-index: 1000;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
+    
     .toast.show {
       opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    
+    @media (max-width: 600px) {
+      .controls {
+        flex-direction: column;
+      }
+      
+      .tag-section {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      }
+      
+      header h1 {
+        font-size: 1.8rem;
+      }
+      
+      .container {
+        margin: 1rem auto;
+        padding: 0.8rem;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <h1><i class="fas fa-cube"></i> Danbooru Prompt Generator</h1>
-      <p>Create complex prompts by selecting tags below</p>
+      <h1><i class="fas fa-magic"></i> Danbooru Prompt Generator</h1>
+      <p>Create complex AI art prompts with our tag search and auto-complete system</p>
     </header>
     
-    <!-- NEW: Tag search bar -->
     <div class="search-container">
-      <input type="text" id="tagSearchInput" placeholder="Search tags...">
-      <div id="suggestionsDropdown" class="suggestions-dropdown"></div>
+      <label for="tagSearchInput"><i class="fas fa-search"></i> Search Tags</label>
+      <div class="search-input-group">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" id="tagSearchInput" placeholder="Type to search tags...">
+        <div id="suggestionsDropdown" class="suggestions-dropdown"></div>
+      </div>
     </div>
     
     <div class="prompt-container">
-      <textarea id="promptField" placeholder="Your prompt will appear here..."></textarea>
+      <textarea id="promptField" placeholder="Your generated prompt will appear here..."></textarea>
       <div class="prompt-info">
         <span>Tags: <span id="tagCount">0</span></span>
-        <span>Chars: <span id="charCount">0</span></span>
+        <span>Characters: <span id="charCount">0</span></span>
       </div>
       <div class="controls">
-        <button class="clear-btn" onclick="clearPrompt()"><i class="fas fa-trash"></i> Clear</button>
-        <button class="copy-btn" onclick="copyPrompt()"><i class="fas fa-copy"></i> Copy</button>
-        <button class="random-btn" onclick="addRandomTags()"><i class="fas fa-random"></i> Random</button>
+        <button class="clear-btn" onclick="clearPrompt()"><i class="fas fa-trash"></i> Clear Prompt</button>
+        <button class="copy-btn" onclick="copyPrompt()"><i class="fas fa-copy"></i> Copy Prompt</button>
+        <button class="random-btn" onclick="addRandomTags()"><i class="fas fa-random"></i> Random Tags</button>
       </div>
       <div class="custom-tag-container">
-        <h3><i class="fas fa-tag"></i> Custom Tag</h3>
+        <h3><i class="fas fa-tag"></i> Add Custom Tag</h3>
         <div class="custom-tag-input">
-          <input type="text" id="customTagInput" placeholder="e.g. epic_scene">
+          <input type="text" id="customTagInput" placeholder="e.g. cinematic_lighting">
           <button onclick="addCustomTag()"><i class="fas fa-plus"></i> Add</button>
         </div>
       </div>
     </div>
+    
     <div class="categories-container" id="categories"></div>
-    <footer>Danbooru Prompt Generator v2.1</footer>
+    
+    <footer>Danbooru Prompt Generator v3.0 • AI Art Assistant</footer>
   </div>
+  
   <div class="toast" id="toast"></div>
-  <script src="./tags.js"></script>
+  
   <script>
+    // Sample tag data (in a real app, this would be much larger)
+    const tagsByCategory = {
+      "Art Style": [
+        { tag: "digital_painting", desc: "Art created using digital tools" },
+        { tag: "anime_style", desc: "Artwork in Japanese animation style" },
+        { tag: "realistic", desc: "Photorealistic representation" },
+        { tag: "watercolor", desc: "Art made with water-soluble paints" },
+        { tag: "pixel_art", desc: "Art created at the pixel level" },
+        { tag: "oil_painting", desc: "Traditional oil painting style" }
+      ],
+      "Character": [
+        { tag: "1girl", desc: "A single female character" },
+        { tag: "solo", desc: "Character alone in the scene" },
+        { tag: "multiple_girls", desc: "Two or more female characters" },
+        { tag: "male_focus", desc: "Male character as the main subject" },
+        { tag: "animal_ears", desc: "Character with animal-like ears" },
+        { tag: "fantasy_creature", desc: "Mythical or fantasy being" }
+      ],
+      "Pose & Action": [
+        { tag: "sitting", desc: "Character in seated position" },
+        { tag: "running", desc: "Character in motion running" },
+        { tag: "jumping", desc: "Character leaping through air" },
+        { tag: "looking_at_viewer", desc: "Character making eye contact" },
+        { tag: "lying_down", desc: "Character in reclined position" },
+        { tag: "dancing", desc: "Character performing dance moves" }
+      ],
+      "Environment": [
+        { tag: "beach", desc: "Seaside or ocean shore setting" },
+        { tag: "forest", desc: "Wooded natural environment" },
+        { tag: "cityscape", desc: "Urban environment with buildings" },
+        { tag: "fantasy_castle", desc: "Magical or medieval castle" },
+        { tag: "underwater", desc: "Scene beneath the water surface" },
+        { tag: "space", desc: "Outer space or celestial setting" }
+      ],
+      "Lighting & Effects": [
+        { tag: "rim_lighting", desc: "Light outlining the subject" },
+        { tag: "volumetric_lighting", desc: "Visible light rays in air" },
+        { tag: "neon_glow", desc: "Bright fluorescent lighting" },
+        { tag: "sunset_lighting", desc: "Warm light of dusk" },
+        { tag: "cinematic_lighting", desc: "Dramatic movie-style lighting" },
+        { tag: "bioluminescence", desc: "Natural glowing light effect" }
+      ],
+      "Attributes": [
+        { tag: "long_hair", desc: "Character with lengthy hair" },
+        { tag: "blue_eyes", desc: "Character with blue eyes" },
+        { tag: "red_dress", desc: "Character wearing red dress" },
+        { tag: "armor", desc: "Character wearing protective armor" },
+        { tag: "wings", desc: "Character with wings" },
+        { tag: "halo", desc: "Glowing circle above head" }
+      ]
+    };
+
+    // DOM Elements
     const categoriesDiv = document.getElementById("categories");
     const promptField = document.getElementById("promptField");
     const customTagInput = document.getElementById("customTagInput");
@@ -152,13 +573,15 @@
     const tagSearchInput = document.getElementById("tagSearchInput");
     const suggestionsDropdown = document.getElementById("suggestionsDropdown");
 
-    // NEW: Create array of all tags for searching
+    // Create array of all tags for searching
     let allTags = [];
-    for (const category in tagsByCategory) {
-      allTags = [...allTags, ...tagsByCategory[category]];
+    for (const [category, tags] of Object.entries(tagsByCategory)) {
+      tags.forEach(tagObj => {
+        allTags.push({...tagObj, category});
+      });
     }
 
-    // NEW: Show suggestions based on input
+    // Show suggestions based on input
     function showSuggestions(query, inputElement) {
       suggestionsDropdown.innerHTML = '';
       
@@ -170,43 +593,43 @@
       const filtered = allTags.filter(tagObj => 
         tagObj.tag.toLowerCase().includes(query.toLowerCase()) || 
         (tagObj.desc && tagObj.desc.toLowerCase().includes(query.toLowerCase()))
-      );
+        .slice(0, 8); // Limit to 8 results
       
       if (filtered.length === 0) {
-        suggestionsDropdown.style.display = 'none';
-        return;
+        const noResults = document.createElement('div');
+        noResults.className = 'suggestion-item';
+        noResults.innerHTML = `<div class="suggestion-tag">No tags found</div>`;
+        suggestionsDropdown.appendChild(noResults);
+      } else {
+        filtered.forEach(({tag, desc, category}) => {
+          const item = document.createElement('div');
+          item.className = 'suggestion-item';
+          item.innerHTML = `
+            <div class="suggestion-category">${category}</div>
+            <div>
+              <div class="suggestion-tag">${tag}</div>
+              <div class="suggestion-description">${desc}</div>
+            </div>
+          `;
+          item.onclick = () => {
+            if (inputElement === tagSearchInput) {
+              addTagToPrompt(tag);
+              tagSearchInput.value = '';
+              suggestionsDropdown.style.display = 'none';
+            } else {
+              customTagInput.value = tag;
+              suggestionsDropdown.style.display = 'none';
+              customTagInput.focus();
+            }
+          };
+          suggestionsDropdown.appendChild(item);
+        });
       }
       
-      // Create suggestion items
-      filtered.forEach(({tag, desc}) => {
-        const item = document.createElement('div');
-        item.className = 'suggestion-item';
-        item.innerHTML = `<div class="tag">${tag}</div><div class="description">${desc}</div>`;
-        item.onclick = () => {
-          if (inputElement === tagSearchInput) {
-            // For search bar: add tag directly to prompt
-            addTagToPrompt(tag);
-            tagSearchInput.value = '';
-            suggestionsDropdown.style.display = 'none';
-          } else {
-            // For custom tag input: set value
-            customTagInput.value = tag;
-            suggestionsDropdown.style.display = 'none';
-            customTagInput.focus();
-          }
-        };
-        suggestionsDropdown.appendChild(item);
-      });
-      
-      // Position dropdown below input
-      const rect = inputElement.getBoundingClientRect();
-      suggestionsDropdown.style.top = `${rect.bottom + window.scrollY}px`;
-      suggestionsDropdown.style.left = `${rect.left + window.scrollX}px`;
-      suggestionsDropdown.style.width = `${rect.width}px`;
       suggestionsDropdown.style.display = 'block';
     }
 
-    // NEW: Hide dropdown when clicking outside
+    // Hide dropdown when clicking outside
     document.addEventListener('click', function(e) {
       if (!tagSearchInput.contains(e.target) && 
           !customTagInput.contains(e.target) && 
@@ -215,21 +638,15 @@
       }
     });
 
-    // NEW: Hide dropdown on scroll/resize
-    window.addEventListener('scroll', function() {
-      suggestionsDropdown.style.display = 'none';
-    });
-    window.addEventListener('resize', function() {
-      suggestionsDropdown.style.display = 'none';
-    });
-
-    // Existing functions...
+    // Core functions
     function addTagToPrompt(tag) {
       let current = promptField.value.split(',').map(t => t.trim()).filter(t => t);
       if (!current.includes(tag)) {
         current.push(tag);
         promptField.value = current.join(', ');
-        showToast(`${tag} added`);
+        showToast(`<i class="fas fa-plus-circle"></i> Added: ${tag}`);
+      } else {
+        showToast(`<i class="fas fa-info-circle"></i> Tag already added`, 'info');
       }
       updateCounters();
     }
@@ -239,46 +656,40 @@
       if (tag) { 
         addTagToPrompt(tag); 
         customTagInput.value = ''; 
-      }
-      else { 
-        showToast("Enter a tag", 'error'); 
+      } else { 
+        showToast('<i class="fas fa-exclamation-triangle"></i> Enter a tag', 'error'); 
       }
     }
     
-    customTagInput.addEventListener('keypress', e => { 
-      if (e.key === 'Enter') addCustomTag(); 
-    });
-    
-    // NEW: Event listeners for search inputs
-    tagSearchInput.addEventListener('input', function() {
-      showSuggestions(this.value, this);
-    });
-    
-    customTagInput.addEventListener('input', function() {
-      showSuggestions(this.value, this);
-    });
-    
-    // NEW: Show suggestions when custom tag input is focused
-    customTagInput.addEventListener('focus', function() {
-      if (this.value) showSuggestions(this.value, this);
-    });
-
     function clearPrompt() { 
-      promptField.value=''; 
+      promptField.value = ''; 
       updateCounters(); 
-      showToast('Cleared'); 
+      showToast('<i class="fas fa-broom"></i> Prompt cleared'); 
     }
     
     function copyPrompt() { 
-      promptField.select(); 
-      document.execCommand('copy'); 
-      showToast('Copied'); 
+      promptField.select();
+      document.execCommand('copy');
+      showToast('<i class="fas fa-check-circle"></i> Copied to clipboard');
     }
     
     function addRandomTags() {
-      allTags.sort(() => 0.5 - Math.random())
-        .slice(0, 5)
-        .forEach(tagObj => addTagToPrompt(tagObj.tag));
+      const randomTags = [];
+      const usedIndices = new Set();
+      
+      // Get 3-5 random tags
+      const count = Math.floor(Math.random() * 3) + 3;
+      
+      while (randomTags.length < count && randomTags.length < allTags.length) {
+        const randomIndex = Math.floor(Math.random() * allTags.length);
+        if (!usedIndices.has(randomIndex)) {
+          randomTags.push(allTags[randomIndex].tag);
+          usedIndices.add(randomIndex);
+        }
+      }
+      
+      randomTags.forEach(tag => addTagToPrompt(tag));
+      showToast(`<i class="fas fa-dice"></i> Added ${count} random tags`);
     }
     
     function updateCounters() {
@@ -288,39 +699,87 @@
     }
     
     function showToast(msg, type = 'success') {
-      toast.textContent = msg;
-      toast.className = 'toast show';
-      setTimeout(() => toast.className = 'toast', 1500);
+      toast.innerHTML = msg;
+      toast.className = 'toast';
+      
+      if (type === 'error') {
+        toast.style.background = 'var(--red)';
+      } else if (type === 'info') {
+        toast.style.background = 'var(--blue)';
+      } else {
+        toast.style.background = 'var(--green)';
+      }
+      
+      setTimeout(() => {
+        toast.classList.add('show');
+      }, 10);
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2500);
     }
     
     // Initialize categories
-    Object.entries(tagsByCategory).forEach(([cat, tags]) => {
-      const card = document.createElement('div'); 
-      card.className = 'category-card';
-      
-      const header = document.createElement('div'); 
-      header.className = 'category-header';
-      header.onclick = () => card.classList.toggle('collapsed');
-      header.innerHTML = `<h2><i class="fas fa-folder"></i> ${cat}</h2><i class="fas fa-chevron-down"></i>`;
-      card.appendChild(header);
-      
-      const section = document.createElement('div'); 
-      section.className = 'tag-section';
-      
-      tags.forEach(({tag, desc}) => {
-        const cont = document.createElement('div'); 
-        cont.className = 'tag-container';
-        cont.onclick = () => addTagToPrompt(tag);
-        cont.innerHTML = `<div class="tag">${tag}</div><div class="description">${desc}</div>`;
-        section.appendChild(cont);
+    function initCategories() {
+      Object.entries(tagsByCategory).forEach(([cat, tags]) => {
+        const card = document.createElement('div'); 
+        card.className = 'category-card';
+        
+        const header = document.createElement('div'); 
+        header.className = 'category-header';
+        header.onclick = () => card.classList.toggle('collapsed');
+        header.innerHTML = `
+          <h2><i class="fas fa-folder"></i> ${cat}</h2>
+          <i class="fas fa-chevron-down"></i>
+        `;
+        card.appendChild(header);
+        
+        const section = document.createElement('div'); 
+        section.className = 'tag-section';
+        
+        tags.forEach(({tag, desc}) => {
+          const cont = document.createElement('div'); 
+          cont.className = 'tag-container';
+          cont.onclick = () => addTagToPrompt(tag);
+          cont.innerHTML = `
+            <div class="tag"><i class="fas fa-tag"></i> ${tag}</div>
+            <div class="description">${desc}</div>
+          `;
+          section.appendChild(cont);
+        });
+        
+        card.appendChild(section);
+        categoriesDiv.appendChild(card);
       });
-      
-      card.appendChild(section);
-      categoriesDiv.appendChild(card);
+    }
+
+    // Event listeners
+    customTagInput.addEventListener('keypress', e => { 
+      if (e.key === 'Enter') addCustomTag(); 
     });
     
-    updateCounters();
+    tagSearchInput.addEventListener('input', function() {
+      showSuggestions(this.value, this);
+    });
+    
+    customTagInput.addEventListener('input', function() {
+      showSuggestions(this.value, this);
+    });
+    
+    customTagInput.addEventListener('focus', function() {
+      if (this.value) showSuggestions(this.value, this);
+    });
+    
     promptField.addEventListener('input', updateCounters);
+    
+    // Initialize the app
+    initCategories();
+    updateCounters();
+    
+    // Add a welcome toast
+    setTimeout(() => {
+      showToast('<i class="fas fa-smile"></i> Welcome! Start by searching or browsing tags');
+    }, 1000);
   </script>
 </body>
 </html>
