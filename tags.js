@@ -159,6 +159,10 @@ const tagsByCategory = {
   ],
   "Clothing": [
     {
+      "tag": "nude",
+      "desc": "No clothing"
+    },
+    {
       "tag": "school_uniform",
       "desc": "Japanese-style schoolgirl outfit"
     },
