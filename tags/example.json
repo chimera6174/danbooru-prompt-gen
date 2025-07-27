@@ -1,0 +1,22 @@
+{
+  "Category1": [
+    {
+      "tag": "tag1",
+      "desc": "description of tag1"
+    },
+    {
+      "tag": "tag2",
+      "desc": "description of tag2"
+    }
+  ],
+  "Category2": [
+    {
+      "tag": "tag1",
+      "desc": "description of tag1"
+    },
+    {
+      "tag": "tag2",
+      "desc": "description of tag2"
+    }
+  ]
+}

@@ -129,34 +129,46 @@
             descriptionsAvailable = true;
             saveTagsToStorage('json');
             showToast('JSON tags loaded');
-          } else if (fileExtension === 'txt') {
-            const text = e.target.result;
-            const lines = text.split('\n').filter(line => line.trim());
-            appTags = {
-              "Custom Tags": lines.map(tag => ({ tag: tag.trim(), desc: "" }))
-            };
-            descriptionsAvailable = false;
-            saveTagsToStorage('txt');
-            showToast('Text tags loaded');
-            
-            // Disable descriptions
-            descriptionToggle.checked = false;
-            localStorage.setItem('showDescriptions', 'false');
+          } else if (fileExtension === 'txt' || fileExtension === 'csv') {
+          const text = e.target.result;
+          const lines = text.split('\n').filter(line => line.trim());
+          let tags = [];
+          
+          if (fileExtension === 'csv') {
+            // Parse CSV format: tag,popularity
+            tags = lines.map(line => {
+              const [tag, popularity] = line.split(',').map(item => item.trim());
+              return { tag, popularity: parseInt(popularity) || 0 };
+            })
+            // Sort by popularity (descending)
+            .sort((a, b) => b.popularity - a.popularity)
+            .map(item => ({ tag: item.tag, desc: "" }));
           } else {
-            throw new Error('Unsupported file format');
+            // Handle TXT format
+            tags = lines.map(tag => ({ tag: tag.trim(), desc: "" }));
           }
           
-          renderCategories();
-          toggleDescriptions(descriptionToggle.checked);
-        } catch (error) {
-          console.error('Error parsing file:', error);
-          showToast('Error loading file', 'error');
+          appTags = { "Custom Tags": tags };
+          descriptionsAvailable = false;
+          saveTagsToStorage(fileExtension);
+          showToast(`${fileExtension.toUpperCase()} tags loaded`);
+          
+          // Disable descriptions
+          descriptionToggle.checked = false;
+          localStorage.setItem('showDescriptions', 'false');
+        } else {
+          throw new Error('Unsupported file format');
         }
         
-        // Reset file input
-        event.target.value = '';
-      };
+        renderCategories();
+        toggleDescriptions(descriptionToggle.checked);
+      } catch (error) {
+        console.error('Error parsing file:', error);
+        showToast('Error loading file', 'error');
+      }
       
+      event.target.value = '';
+    };
       reader.readAsText(file);
     }
     
@@ -178,51 +190,70 @@
         allTags = [...allTags, ...appTags[category]];
       }
       
-      // Render each category
-      Object.entries(appTags).forEach(([cat, tags]) => {
+      // Render categories in chunks to avoid UI freeze
+      const categories = Object.entries(appTags);
+      let index = 0;
+      
+      function renderNextCategory() {
+        if (index >= categories.length) return;
+        
+        const [cat, tags] = categories[index];
         const card = document.createElement('div'); 
         card.className = 'category-card';
         
         const header = document.createElement('div'); 
         header.className = 'category-header';
-        header.onclick = () => card.classList.toggle('collapsed');
-        header.innerHTML = `<h2><i class="fas fa-folder"></i> ${cat}</h2><i class="fas fa-chevron-down"></i>`;
+        header.innerHTML = `<h2><i class="fas fa-folder"></i> ${cat}</h2>`;
         card.appendChild(header);
         
         const section = document.createElement('div'); 
         section.className = 'tag-section';
         
-        tags.forEach(({tag, desc}) => {
-          const cont = document.createElement('div'); 
-          cont.className = 'tag-container';
-          cont.onclick = () => addTagToPrompt(tag);
-          
-          const tagEl = document.createElement('div');
-          tagEl.className = 'tag';
-          tagEl.textContent = tag;
-          cont.appendChild(tagEl);
-          
-          const descEl = document.createElement('div');
-          descEl.className = 'description';
-          descEl.textContent = desc;
-          cont.appendChild(descEl);
-          
-          section.appendChild(cont);
-        });
+        // Render tags in batches
+        const batchSize = 100;
+        let tagIndex = 0;
         
+        function renderTagBatch() {
+          const batchEnd = Math.min(tagIndex + batchSize, tags.length);
+          
+          for (; tagIndex < batchEnd; tagIndex++) {
+            const {tag, desc} = tags[tagIndex];
+            const cont = document.createElement('div'); 
+            cont.className = 'tag-container';
+            cont.onclick = () => addTagToPrompt(tag);
+            
+            const tagEl = document.createElement('div');
+            tagEl.className = 'tag';
+            tagEl.textContent = tag;
+            cont.appendChild(tagEl);
+            
+            const descEl = document.createElement('div');
+            descEl.className = 'description';
+            descEl.textContent = desc;
+            cont.appendChild(descEl);
+            
+            section.appendChild(cont);
+          }
+          
+          if (tagIndex < tags.length) {
+            setTimeout(renderTagBatch, 0);
+          }
+        }
+        
+        renderTagBatch();
         card.appendChild(section);
         categoriesDiv.appendChild(card);
-      });
+        
+        index++;
+        setTimeout(renderNextCategory, 0);
+      }
       
-      // Collapse all categories by default
-      document.querySelectorAll('.category-card').forEach(card => {
-        card.classList.add('collapsed');
-      });
+      renderNextCategory();
       
       // Apply description visibility
       toggleDescriptions(descriptionToggle.checked);
     }
-    
+
     // Add tag to prompt
     function addTagToPrompt(tag) {
       let current = promptField.value.split(',').map(t => t.trim()).filter(t => t);
@@ -352,6 +383,10 @@
         e.preventDefault();
         handleUnifiedAdd();
       }
+      if (e.key === 'Backspace' && unifiedInput.value === '') {
+        e.preventDefault();
+        removeLastTag();
+      }
     }
 
     // Clear prompt
@@ -367,6 +402,18 @@
       navigator.clipboard.writeText(promptField.value).then(() => {
         showToast('Copied to clipboard');
       });
+    }
+
+    function removeLastTag() {
+      const tags = promptField.value.split(',').map(t => t.trim()).filter(t => t);
+      if (tags.length > 0) {
+        const removedTag = tags.pop();
+        promptField.value = tags.join(', ');
+        showToast(`Removed: ${removedTag}`);
+        updateCounters();
+      } else {
+        showToast('No tags to remove', 'error');
+      }
     }
     
     // Add random tags

@@ -4,6 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Danbooru Prompt Generator</title>
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Generate Danbooru-style prompts for AI art generation. Create complex tags with our easy-to-use interface.">
+  <meta name="keywords" content="danbooru, prompt generator, ai art, tag generator, anime art">
+  <meta name="author" content="Your Name">
+  <meta property="og:title" content="Danbooru Prompt Generator">
+  <meta property="og:description" content="Create complex Danbooru-style prompts for AI art generation">
+  <meta property="og:type" content="website">
+  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="src/index.css">
 </head>
@@ -14,13 +22,13 @@
       <p>Create complex prompts by selecting tags below</p>
     </header>
     
-    <!-- Settings Container -->
-    <div class="settings-container">
-      <div class="settings-header" onclick="document.querySelector('.settings-content').classList.toggle('collapsed')">
+    <!-- Fixed Settings Container -->
+    <div class="settings-container collapsed" id="settingsContainer">
+      <div class="settings-header" onclick="document.getElementById('settingsContainer').classList.toggle('collapsed')">
         <h3><i class="fas fa-cog"></i> Settings</h3>
         <i class="fas fa-chevron-down"></i>
       </div>
-      <div class="settings-content collapsed">
+      <div class="settings-content">
         <div class="settings-row">
           <div class="toggle-container">
             <label class="toggle-switch">
@@ -32,16 +40,20 @@
         </div>
         <div class="settings-row">
           <button id="loadDefaultTags" class="load-tags-btn" onclick="loadDefaultTags()">
-            <i class="fas fa-download"></i> Load Default Tags
+            <i class="fas fa-download"></i> Load Default Tags (NSFW)
           </button>
           <label class="file-input-label">
-            <input type="file" id="tagsFileInput" accept=".json,.txt">
-            <i class="fas fa-file-import"></i> Load Custom Tags
+            <input type="file" id="tagsFileInput" accept=".json,.txt,.csv">
+            <i class="fas fa-file-import"></i> Load Custom Tags 
+          </label>
+        </div>
+        <div class="settings-row">
+          <label>
+          Supports <a href="./tags/example.json" target="_blank">JSON</a>, <a href="./tags/example.txt" target="_blank">TXT</a>, and <a href="./tags/example.csv" target="_blank">CSV</a> for custom tags. Descriptions and Categories are not supported with TXT or CSV.
           </label>
         </div>
       </div>
     </div>
-
     <div class="prompt-container">
       <textarea id="promptField" placeholder="Your prompt will appear here..."></textarea>
       <div class="prompt-info">
@@ -57,10 +69,11 @@
       <!-- Unified search/custom tag input -->
       <div class="unified-input-container">
         <h3><i class="fas fa-search"></i> Add Custom Tag or Search</h3>
-        <div class="unified-input-wrapper">
-          <input type="text" id="unifiedInput" placeholder="Type to search tags or add custom...">
-          <button onclick="handleUnifiedAdd()"><i class="fas fa-plus"></i> Add</button>
-        </div>
+          <div class="unified-input-wrapper">
+            <input type="text" id="unifiedInput" placeholder="Type to search tags or add custom...">
+            <button onclick="handleUnifiedAdd()"><i class="fas fa-plus"></i> Add</button>
+            <button onclick="removeLastTag()" class="remove-btn"><i class="fas fa-delete-left"></i> Remove</button>
+          </div>
         <div id="suggestionsDropdown" class="suggestions-dropdown"></div>
       </div>
     </div>
