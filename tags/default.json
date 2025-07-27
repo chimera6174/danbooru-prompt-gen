@@ -1,4 +1,4 @@
-const tagsByCategory = {
+{
   "Common": [
     {
       "tag": "1girl",
@@ -314,7 +314,7 @@ const tagsByCategory = {
     },
     {
       "tag": "cum_on_face",
-      "desc": "Semen on character\u2019s face"
+      "desc": "Semen on character’s face"
     },
     {
       "tag": "cum_on_body",
@@ -1256,7 +1256,7 @@ const tagsByCategory = {
     },
     {
       "tag": "cum_in_mouth",
-      "desc": "Visible semen in character\u2019s mouth"
+      "desc": "Visible semen in character’s mouth"
     },
     {
       "tag": "urination",
@@ -1276,7 +1276,7 @@ const tagsByCategory = {
     },
     {
       "tag": "face_sitting",
-      "desc": "Character seated on another\u2019s face"
+      "desc": "Character seated on another’s face"
     },
     {
       "tag": "sloppy",
@@ -1404,7 +1404,7 @@ const tagsByCategory = {
     },
     {
       "tag": "watched",
-      "desc": "Character is aware they\u2019re being seen"
+      "desc": "Character is aware they’re being seen"
     },
     {
       "tag": "masturbating_while_watching",
@@ -1468,7 +1468,7 @@ const tagsByCategory = {
     },
     {
       "tag": "pov",
-      "desc": "From viewer or participant\u2019s perspective"
+      "desc": "From viewer or participant’s perspective"
     },
     {
       "tag": "tripod",
@@ -1761,4 +1761,4 @@ const tagsByCategory = {
       "desc": "Dripping fluids during or after sex"
     }
   ]
-};
+}
