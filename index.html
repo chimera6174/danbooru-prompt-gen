@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Danbooru Prompt Generator</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -18,572 +18,406 @@
       --highlight: #7a6a9a;
       --green: #5c7c46;
       --red: #9a2a2a;
-      --blue: #4a7b9d;
+      --blue: #3a6e9a;
     }
 
-    * { 
-      margin: 0; 
-      padding: 0; 
-      box-sizing: border-box; 
-    }    
-    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: var(--mantle);
       color: var(--text);
-      line-height: 1.6;
+      line-height: 1.4;
       padding: 0.5rem;
-      background-image: radial-gradient(circle at 20% 30%, rgba(42, 35, 30, 0.4) 0%, transparent 80%), 
-                        radial-gradient(circle at 80% 70%, rgba(122, 106, 154, 0.2) 0%, transparent 80%);
-      min-height: 100vh;
     }
-    
     .container {
       max-width: 800px;
-      margin: 2rem auto;
-      padding: 1rem;
-      background: rgba(15, 13, 12, 0.8);
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      margin: auto;
+      padding-bottom: 2rem;
       position: relative;
-      overflow: hidden;
-      border: 1px solid var(--overlay);
     }
-    
-    .container::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: linear-gradient(to right, var(--accent), var(--highlight));
-      z-index: 10;
-    }
-    
     header {
       text-align: center;
-      padding: 1.5rem 0;
-      position: relative;
+      padding: 1rem 0;
     }
-    
     header h1 {
-      font-size: 2.2rem;
-      color: var(--accent);
+      font-size: 1.8rem;
+      color: var(--highlight);
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.8rem;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-      margin-bottom: 0.5rem;
+      gap: 0.5rem;
     }
-    
     header p {
-      font-size: 1.05rem;
+      font-size: 0.95rem;
       color: var(--subtext);
-      max-width: 600px;
-      margin: 0 auto;
     }
-    
-    .search-container {
-      position: relative;
-      margin: 1.5rem 0;
+
+    .prompt-container {
       background: var(--surface);
       border-radius: 8px;
       padding: 1rem;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      margin: 1rem 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
-    
-    .search-container label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-size: 1.1rem;
-      color: var(--accent);
-      font-weight: 600;
+    textarea {
+      width: 100%;
+      min-height: 100px;
+      background: var(--base);
+      color: var(--text);
+      border: 1px solid var(--overlay);
+      border-radius: 6px;
+      padding: 0.8rem;
+      font-size: 0.95rem;
+      resize: vertical;
+      transition: border-color 0.3s;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .prompt-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: var(--subtext);
+      margin-top: 0.5rem;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.8rem;
+    }
+    button {
+      flex: 1;
+      padding: 0.6rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      justify-content: center;
+      gap: 0.4rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
     }
-    
-    .search-input-group {
+    button:hover { 
+      transform: translateY(-2px); 
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    button:active { transform: translateY(0); }
+    .clear-btn { background: var(--red); color: #fff; }
+    .copy-btn  { background: var(--green); color: #fff; }
+    .random-btn{ background: var(--highlight); color: #fff; }
+
+    .unified-input-container {
+      margin-top: 1rem;
       position: relative;
-      display: flex;
     }
-    
-    #tagSearchInput {
+    .unified-input-container h3 {
+      font-size: 1rem;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.6rem;
+    }
+    .unified-input-wrapper {
+      display: flex;
+      gap: 0.4rem;
+    }
+    .unified-input-wrapper input {
       flex: 1;
-      padding: 0.8rem 1rem 0.8rem 3rem;
+      padding: 0.6rem;
       border-radius: 6px;
       border: 1px solid var(--overlay);
       background: var(--base);
       color: var(--text);
-      font-size: 1rem;
-      transition: all 0.3s;
-    }
-    
-    #tagSearchInput:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(212, 135, 93, 0.3);
-    }
-    
-    .search-icon {
-      position: absolute;
-      left: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--subtext);
-      font-size: 1.2rem;
-    }
-    
-    .suggestions-dropdown {
-      position: absolute;
-      top: calc(100% + 5px);
-      left: 0;
-      right: 0;
-      background: var(--surface);
-      border: 1px solid var(--overlay);
-      border-radius: 8px;
-      max-height: 300px;
-      overflow-y: auto;
-      z-index: 100;
-      display: none;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-    }
-    
-    .suggestion-item {
-      padding: 0.8rem 1rem;
-      cursor: pointer;
-      border-bottom: 1px solid var(--overlay);
-      transition: background 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
-    }
-    
-    .suggestion-item:last-child {
-      border-bottom: none;
-    }
-    
-    .suggestion-item:hover {
-      background: var(--base);
-    }
-    
-    .suggestion-category {
-      background: var(--highlight);
-      color: white;
-      font-size: 0.75rem;
-      padding: 0.2rem 0.5rem;
-      border-radius: 4px;
-      font-weight: bold;
-      flex-shrink: 0;
-      width: 120px;
-      text-align: center;
-    }
-    
-    .suggestion-tag {
-      font-weight: bold;
-      font-size: 0.95rem;
-      color: var(--text);
-      flex: 1;
-    }
-    
-    .suggestion-description {
-      font-size: 0.85rem;
-      color: var(--subtext);
-      margin-top: 0.2rem;
-    }
-    
-    .prompt-container {
-      background: var(--surface);
-      border-radius: 8px;
-      padding: 1.5rem;
-      margin: 1.5rem 0;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-    
-    textarea {
-      width: 100%;
-      min-height: 120px;
-      background: var(--base);
-      color: var(--text);
-      border: 1px solid var(--overlay);
-      border-radius: 8px;
-      padding: 1rem;
-      font-size: 1rem;
-      resize: vertical;
-      transition: all 0.3s;
-    }
-    
-    textarea:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(122, 106, 154, 0.3);
-    }
-    
-    .prompt-info {
-      display: flex;
-      justify-content: space-between;
       font-size: 0.9rem;
-      color: var(--subtext);
-      margin-top: 0.8rem;
-      padding: 0 0.5rem;
+      transition: border-color 0.3s;
     }
-    
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.8rem;
-      margin-top: 1.2rem;
-    }
-    
-    button {
-      flex: 1;
-      padding: 0.8rem;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.6rem;
-      cursor: pointer;
-      transition: all 0.3s;
-      min-width: 150px;
-    }
-    
-    button:hover { 
-      transform: translateY(-2px); 
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-    
-    .clear-btn { 
-      background: var(--red); 
-      color: #fff; 
-    }
-    
-    .copy-btn  { 
-      background: var(--green); 
-      color: #fff; 
-    }
-    
-    .random-btn { 
-      background: var(--blue); 
-      color: #fff; 
-    }
-    
-    .custom-tag-container {
-      background: rgba(42, 35, 30, 0.7);
-      border-radius: 8px;
-      padding: 1.2rem;
-      margin-top: 1.5rem;
-      border: 1px dashed var(--overlay);
-    }
-    
-    .custom-tag-container h3 {
-      font-size: 1.1rem;
-      color: var(--accent);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0.8rem;
-    }
-    
-    .custom-tag-input {
-      display: flex;
-      gap: 0.6rem;
-      position: relative;
-    }
-    
-    .custom-tag-input input {
-      flex: 1;
-      padding: 0.8rem 1rem;
-      border-radius: 8px;
-      border: 1px solid var(--overlay);
-      background: var(--base);
-      color: var(--text);
-      font-size: 1rem;
-    }
-    
-    .custom-tag-input input:focus {
+    .unified-input-wrapper input:focus {
       outline: none;
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(212, 135, 93, 0.3);
     }
-    
-    .custom-tag-input button {
-      background: var(--accent);
+    .unified-input-wrapper button {
+      background: var(--green);
       color: #fff;
-      padding: 0.8rem 1.5rem;
-      border-radius: 8px;
-      font-weight: 600;
-      min-width: auto;
+      padding: 0.6rem;
+      border-radius: 6px;
+      min-width: 80px;
     }
-    
+
     .categories-container {
-      margin-top: 1.5rem;
+      margin-top: 1rem;
     }
-    
     .category-card {
       background: var(--surface);
-      border-radius: 10px;
-      margin-bottom: 1.2rem;
+      border-radius: 8px;
+      margin-bottom: 0.8rem;
       overflow: hidden;
       border: 1px solid var(--overlay);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-      transition: all 0.3s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: transform 0.3s;
     }
-    
     .category-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+      transform: translateY(-2px);
     }
-    
     .category-header {
-      padding: 1rem 1.5rem;
+      padding: 0.7rem 1rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
       cursor: pointer;
-      background: rgba(42, 35, 30, 0.7);
-      transition: background 0.3s;
+      background: rgba(0,0,0,0.1);
     }
-    
-    .category-header:hover {
-      background: rgba(42, 35, 30, 0.9);
-    }
-    
     .category-header h2 {
-      font-size: 1.2rem;
+      font-size: 1rem;
       color: var(--accent);
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-    }
-    
-    .category-header i {
-      transition: transform 0.3s;
-      transform: rotate(180deg);
-    }
-    
-    .category-card.collapsed .category-header i { 
-      transform: rotate(0deg); 
-    }
-    
-    .tag-section {
-      padding: 1.2rem;
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 0.8rem;
-      background: rgba(35, 30, 28, 0.5);
-    }
-    
-    .tag-container {
-      background: var(--base);
-      border-radius: 8px;
-      padding: 1rem;
-      border: 1px solid var(--overlay);
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    
-    .tag-container:hover { 
-      transform: translateY(-3px); 
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      border-color: var(--accent);
-    }
-    
-    .tag { 
-      font-size: 1rem; 
-      font-weight: bold; 
-      color: var(--text); 
-      margin-bottom: 0.4rem; 
       display: flex;
       align-items: center;
       gap: 0.4rem;
     }
-    
-    .tag i {
-      color: var(--highlight);
+    .category-header i {
+      transition: transform 0.3s;
+      transform: rotate(180deg);
     }
-    
+    .category-card.collapsed .category-header i { transform: rotate(0deg); }
+
+    .tag-section {
+      padding: 0.8rem 1rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 0.5rem;
+      background: rgba(0,0,0,0.05);
+      border-top: 1px solid var(--overlay);
+    }
+    .tag-container {
+      background: var(--base);
+      border-radius: 6px;
+      padding: 0.6rem;
+      border: 1px solid var(--overlay);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tag-container:hover { 
+      transform: translateY(-2px); 
+      background: rgba(122, 106, 154, 0.1);
+      border-color: var(--highlight);
+    }
+    .tag { 
+      font-size: 0.95rem; 
+      font-weight: bold; 
+      color: var(--text); 
+      margin-bottom: 0.3rem; 
+    }
     .description { 
-      font-size: 0.85rem; 
+      font-size: 0.8rem; 
       color: var(--subtext); 
+      line-height: 1.3;
     }
-    
+
     footer {
       text-align: center;
-      font-size: 0.9rem;
+      font-size: 0.8rem;
       color: var(--subtext);
-      margin-top: 2rem;
+      margin-top: 1rem;
       padding-top: 1rem;
       border-top: 1px solid var(--overlay);
     }
-    
-    .category-card.collapsed .tag-section { 
-      display: none; 
+
+    /* Suggestions dropdown */
+    .suggestions-dropdown {
+      position: absolute;
+      background: var(--surface);
+      border: 1px solid var(--overlay);
+      border-radius: 0 0 6px 6px;
+      max-height: 200px;
+      overflow-y: auto;
+      width: 100%;
+      z-index: 100;
+      display: none;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      top: 100%;
+      margin-top: -1px;
     }
-    
+    .suggestion-item {
+      padding: 0.6rem;
+      cursor: pointer;
+      border-bottom: 1px solid var(--overlay);
+      display: flex;
+      flex-direction: column;
+    }
+    .suggestion-item:last-child {
+      border-bottom: none;
+    }
+    .suggestion-item .tag {
+      font-weight: bold;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+    .suggestion-item .description {
+      font-size: 0.8rem;
+      color: var(--subtext);
+    }
+    .suggestion-item:hover {
+      background: var(--base);
+    }
+    .suggestion-item.highlighted {
+      background: var(--base);
+      border-left: 3px solid var(--accent);
+    }
+
+    /* Toast */
     .toast {
       position: fixed;
-      bottom: 30px;
+      bottom: 20px;
       left: 50%;
-      transform: translateX(-50%) translateY(100px);
+      transform: translateX(-50%);
       background: var(--accent);
       color: white;
       padding: 12px 24px;
-      border-radius: 8px;
+      border-radius: 30px;
       opacity: 0;
-      transition: all 0.3s;
+      transition: opacity 0.3s;
       z-index: 1000;
       font-weight: 600;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
-    
     .toast.show {
       opacity: 1;
-      transform: translateX(-50%) translateY(0);
     }
-    
+
+    /* Mobile optimizations */
     @media (max-width: 600px) {
-      .controls {
+      .controls button {
+        min-width: 100px;
+      }
+      .tag-section {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      }
+      .unified-input-wrapper {
         flex-direction: column;
       }
-      
-      .tag-section {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      .unified-input-wrapper button {
+        width: 100%;
       }
-      
-      header h1 {
-        font-size: 1.8rem;
-      }
-      
-      .container {
-        margin: 1rem auto;
-        padding: 0.8rem;
-      }
+    }
+    
+    /* Animation for tag addition */
+    @keyframes tagHighlight {
+      0% { background-color: rgba(122, 106, 154, 0.3); }
+      100% { background-color: transparent; }
+    }
+    .tag-highlight {
+      animation: tagHighlight 1.5s ease-out;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <h1><i class="fas fa-magic"></i> Danbooru Prompt Generator</h1>
-      <p>Create complex AI art prompts with our tag search and auto-complete system</p>
+      <h1><i class="fas fa-cube"></i> Danbooru Prompt Generator</h1>
+      <p>Create complex prompts by selecting tags below</p>
     </header>
     
-    <div class="search-container">
-      <label for="tagSearchInput"><i class="fas fa-search"></i> Search Tags</label>
-      <div class="search-input-group">
-        <i class="fas fa-search search-icon"></i>
-        <input type="text" id="tagSearchInput" placeholder="Type to search tags...">
+    <div class="prompt-container">
+      <textarea id="promptField" placeholder="Your prompt will appear here..."></textarea>
+      <div class="prompt-info">
+        <span>Tags: <span id="tagCount">0</span></span>
+        <span>Chars: <span id="charCount">0</span></span>
+      </div>
+      <div class="controls">
+        <button class="clear-btn" onclick="clearPrompt()"><i class="fas fa-trash"></i> Clear</button>
+        <button class="copy-btn" onclick="copyPrompt()"><i class="fas fa-copy"></i> Copy</button>
+        <button class="random-btn" onclick="addRandomTags()"><i class="fas fa-random"></i> Random</button>
+      </div>
+      
+      <!-- Unified search/custom tag input -->
+      <div class="unified-input-container">
+        <h3><i class="fas fa-search"></i> Add Custom Tag or Search</h3>
+        <div class="unified-input-wrapper">
+          <input type="text" id="unifiedInput" placeholder="Type to search tags or add custom...">
+          <button onclick="handleUnifiedAdd()"><i class="fas fa-plus"></i> Add</button>
+        </div>
         <div id="suggestionsDropdown" class="suggestions-dropdown"></div>
       </div>
     </div>
     
-    <div class="prompt-container">
-      <textarea id="promptField" placeholder="Your generated prompt will appear here..."></textarea>
-      <div class="prompt-info">
-        <span>Tags: <span id="tagCount">0</span></span>
-        <span>Characters: <span id="charCount">0</span></span>
-      </div>
-      <div class="controls">
-        <button class="clear-btn" onclick="clearPrompt()"><i class="fas fa-trash"></i> Clear Prompt</button>
-        <button class="copy-btn" onclick="copyPrompt()"><i class="fas fa-copy"></i> Copy Prompt</button>
-        <button class="random-btn" onclick="addRandomTags()"><i class="fas fa-random"></i> Random Tags</button>
-      </div>
-      <div class="custom-tag-container">
-        <h3><i class="fas fa-tag"></i> Add Custom Tag</h3>
-        <div class="custom-tag-input">
-          <input type="text" id="customTagInput" placeholder="e.g. cinematic_lighting">
-          <button onclick="addCustomTag()"><i class="fas fa-plus"></i> Add</button>
-        </div>
-      </div>
-    </div>
-    
     <div class="categories-container" id="categories"></div>
-    
-    <footer>Danbooru Prompt Generator v3.0 • AI Art Assistant</footer>
+    <footer>Danbooru Prompt Generator v2.2 • Enhanced UI</footer>
   </div>
   
   <div class="toast" id="toast"></div>
   
+  <script src="./tags.js"></script>
   <script>
-    // Sample tag data (in a real app, this would be much larger)
-    const tagsByCategory = {
-      "Art Style": [
-        { tag: "digital_painting", desc: "Art created using digital tools" },
-        { tag: "anime_style", desc: "Artwork in Japanese animation style" },
-        { tag: "realistic", desc: "Photorealistic representation" },
-        { tag: "watercolor", desc: "Art made with water-soluble paints" },
-        { tag: "pixel_art", desc: "Art created at the pixel level" },
-        { tag: "oil_painting", desc: "Traditional oil painting style" }
-      ],
-      "Character": [
-        { tag: "1girl", desc: "A single female character" },
-        { tag: "solo", desc: "Character alone in the scene" },
-        { tag: "multiple_girls", desc: "Two or more female characters" },
-        { tag: "male_focus", desc: "Male character as the main subject" },
-        { tag: "animal_ears", desc: "Character with animal-like ears" },
-        { tag: "fantasy_creature", desc: "Mythical or fantasy being" }
-      ],
-      "Pose & Action": [
-        { tag: "sitting", desc: "Character in seated position" },
-        { tag: "running", desc: "Character in motion running" },
-        { tag: "jumping", desc: "Character leaping through air" },
-        { tag: "looking_at_viewer", desc: "Character making eye contact" },
-        { tag: "lying_down", desc: "Character in reclined position" },
-        { tag: "dancing", desc: "Character performing dance moves" }
-      ],
-      "Environment": [
-        { tag: "beach", desc: "Seaside or ocean shore setting" },
-        { tag: "forest", desc: "Wooded natural environment" },
-        { tag: "cityscape", desc: "Urban environment with buildings" },
-        { tag: "fantasy_castle", desc: "Magical or medieval castle" },
-        { tag: "underwater", desc: "Scene beneath the water surface" },
-        { tag: "space", desc: "Outer space or celestial setting" }
-      ],
-      "Lighting & Effects": [
-        { tag: "rim_lighting", desc: "Light outlining the subject" },
-        { tag: "volumetric_lighting", desc: "Visible light rays in air" },
-        { tag: "neon_glow", desc: "Bright fluorescent lighting" },
-        { tag: "sunset_lighting", desc: "Warm light of dusk" },
-        { tag: "cinematic_lighting", desc: "Dramatic movie-style lighting" },
-        { tag: "bioluminescence", desc: "Natural glowing light effect" }
-      ],
-      "Attributes": [
-        { tag: "long_hair", desc: "Character with lengthy hair" },
-        { tag: "blue_eyes", desc: "Character with blue eyes" },
-        { tag: "red_dress", desc: "Character wearing red dress" },
-        { tag: "armor", desc: "Character wearing protective armor" },
-        { tag: "wings", desc: "Character with wings" },
-        { tag: "halo", desc: "Glowing circle above head" }
-      ]
-    };
-
-    // DOM Elements
     const categoriesDiv = document.getElementById("categories");
     const promptField = document.getElementById("promptField");
-    const customTagInput = document.getElementById("customTagInput");
+    const unifiedInput = document.getElementById("unifiedInput");
     const tagCount = document.getElementById("tagCount");
     const charCount = document.getElementById("charCount");
     const toast = document.getElementById("toast");
-    const tagSearchInput = document.getElementById("tagSearchInput");
     const suggestionsDropdown = document.getElementById("suggestionsDropdown");
 
     // Create array of all tags for searching
     let allTags = [];
-    for (const [category, tags] of Object.entries(tagsByCategory)) {
-      tags.forEach(tagObj => {
-        allTags.push({...tagObj, category});
-      });
+    for (const category in tagsByCategory) {
+      allTags = [...allTags, ...tagsByCategory[category]];
+    }
+
+    let currentSuggestionIndex = -1;
+
+    // Add tag to prompt
+    function addTagToPrompt(tag) {
+      let current = promptField.value.split(',').map(t => t.trim()).filter(t => t);
+      if (!current.includes(tag)) {
+        current.push(tag);
+        promptField.value = current.join(', ');
+        showToast(`${tag} added`);
+        
+        // Add visual feedback
+        const tagEls = document.querySelectorAll('.tag-container');
+        tagEls.forEach(el => {
+          if (el.querySelector('.tag').textContent === tag) {
+            el.classList.add('tag-highlight');
+            setTimeout(() => el.classList.remove('tag-highlight'), 1500);
+          }
+        });
+      }
+      updateCounters();
+    }
+
+    // Handle unified add (custom tag or selected suggestion)
+    function handleUnifiedAdd() {
+      const tag = unifiedInput.value.trim();
+      if (tag) {
+        // Check if we have a highlighted suggestion
+        if (currentSuggestionIndex >= 0) {
+          const items = suggestionsDropdown.querySelectorAll('.suggestion-item');
+          if (items.length > currentSuggestionIndex) {
+            const tagEl = items[currentSuggestionIndex].querySelector('.tag');
+            if (tagEl) {
+              addTagToPrompt(tagEl.textContent);
+            }
+          }
+        } else {
+          // Add as custom tag
+          addTagToPrompt(tag);
+        }
+        unifiedInput.value = '';
+        suggestionsDropdown.style.display = 'none';
+        currentSuggestionIndex = -1;
+      } else {
+        showToast("Enter a tag", 'error');
+      }
     }
 
     // Show suggestions based on input
-    function showSuggestions(query, inputElement) {
+    function showSuggestions(query) {
       suggestionsDropdown.innerHTML = '';
+      currentSuggestionIndex = -1;
       
       if (query.length < 1) {
         suggestionsDropdown.style.display = 'none';
@@ -593,193 +427,178 @@
       const filtered = allTags.filter(tagObj => 
         tagObj.tag.toLowerCase().includes(query.toLowerCase()) || 
         (tagObj.desc && tagObj.desc.toLowerCase().includes(query.toLowerCase()))
-        .slice(0, 8); // Limit to 8 results
+      );
       
       if (filtered.length === 0) {
-        const noResults = document.createElement('div');
-        noResults.className = 'suggestion-item';
-        noResults.innerHTML = `<div class="suggestion-tag">No tags found</div>`;
-        suggestionsDropdown.appendChild(noResults);
-      } else {
-        filtered.forEach(({tag, desc, category}) => {
-          const item = document.createElement('div');
-          item.className = 'suggestion-item';
-          item.innerHTML = `
-            <div class="suggestion-category">${category}</div>
-            <div>
-              <div class="suggestion-tag">${tag}</div>
-              <div class="suggestion-description">${desc}</div>
-            </div>
-          `;
-          item.onclick = () => {
-            if (inputElement === tagSearchInput) {
-              addTagToPrompt(tag);
-              tagSearchInput.value = '';
-              suggestionsDropdown.style.display = 'none';
-            } else {
-              customTagInput.value = tag;
-              suggestionsDropdown.style.display = 'none';
-              customTagInput.focus();
-            }
-          };
-          suggestionsDropdown.appendChild(item);
-        });
+        suggestionsDropdown.style.display = 'none';
+        return;
       }
+      
+      // Create suggestion items
+      filtered.forEach(({tag, desc}) => {
+        const item = document.createElement('div');
+        item.className = 'suggestion-item';
+        item.innerHTML = `<div class="tag">${tag}</div><div class="description">${desc}</div>`;
+        item.onclick = () => {
+          addTagToPrompt(tag);
+          unifiedInput.value = '';
+          suggestionsDropdown.style.display = 'none';
+        };
+        suggestionsDropdown.appendChild(item);
+      });
       
       suggestionsDropdown.style.display = 'block';
     }
 
-    // Hide dropdown when clicking outside
-    document.addEventListener('click', function(e) {
-      if (!tagSearchInput.contains(e.target) && 
-          !customTagInput.contains(e.target) && 
-          !suggestionsDropdown.contains(e.target)) {
-        suggestionsDropdown.style.display = 'none';
+    // Highlight suggestion item
+    function highlightSuggestion(index) {
+      const items = suggestionsDropdown.querySelectorAll('.suggestion-item');
+      items.forEach((item, i) => {
+        item.classList.toggle('highlighted', i === index);
+      });
+      
+      // Scroll into view if needed
+      if (index >= 0 && items[index]) {
+        items[index].scrollIntoView({ block: 'nearest' });
       }
-    });
+    }
 
-    // Core functions
-    function addTagToPrompt(tag) {
-      let current = promptField.value.split(',').map(t => t.trim()).filter(t => t);
-      if (!current.includes(tag)) {
-        current.push(tag);
-        promptField.value = current.join(', ');
-        showToast(`<i class="fas fa-plus-circle"></i> Added: ${tag}`);
-      } else {
-        showToast(`<i class="fas fa-info-circle"></i> Tag already added`, 'info');
+    // Handle keyboard events
+    function handleKeyDown(e) {
+      const items = suggestionsDropdown.querySelectorAll('.suggestion-item');
+      
+      if (suggestionsDropdown.style.display === 'block' && items.length > 0) {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          currentSuggestionIndex = (currentSuggestionIndex + 1) % items.length;
+          highlightSuggestion(currentSuggestionIndex);
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          currentSuggestionIndex = (currentSuggestionIndex - 1 + items.length) % items.length;
+          highlightSuggestion(currentSuggestionIndex);
+        } else if (e.key === 'Tab' && currentSuggestionIndex >= 0) {
+          e.preventDefault();
+          const tagEl = items[currentSuggestionIndex].querySelector('.tag');
+          if (tagEl) {
+            unifiedInput.value = tagEl.textContent;
+            // Move cursor to end
+            unifiedInput.setSelectionRange(
+              unifiedInput.value.length,
+              unifiedInput.value.length
+            );
+          }
+        } else if (e.key === 'Escape') {
+          suggestionsDropdown.style.display = 'none';
+          currentSuggestionIndex = -1;
+        }
       }
-      updateCounters();
-    }
-    
-    function addCustomTag() {
-      const tag = customTagInput.value.trim();
-      if (tag) { 
-        addTagToPrompt(tag); 
-        customTagInput.value = ''; 
-      } else { 
-        showToast('<i class="fas fa-exclamation-triangle"></i> Enter a tag', 'error'); 
+
+      // Handle Enter key regardless of whether the dropdown is open
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleUnifiedAdd();
       }
     }
-    
+
+    // Clear prompt
     function clearPrompt() { 
       promptField.value = ''; 
       updateCounters(); 
-      showToast('<i class="fas fa-broom"></i> Prompt cleared'); 
+      showToast('Cleared'); 
     }
     
+    // Copy prompt to clipboard
     function copyPrompt() { 
       promptField.select();
-      document.execCommand('copy');
-      showToast('<i class="fas fa-check-circle"></i> Copied to clipboard');
+      navigator.clipboard.writeText(promptField.value).then(() => {
+        showToast('Copied to clipboard');
+      });
     }
     
+    // Add random tags
     function addRandomTags() {
-      const randomTags = [];
-      const usedIndices = new Set();
-      
-      // Get 3-5 random tags
-      const count = Math.floor(Math.random() * 3) + 3;
-      
-      while (randomTags.length < count && randomTags.length < allTags.length) {
-        const randomIndex = Math.floor(Math.random() * allTags.length);
-        if (!usedIndices.has(randomIndex)) {
-          randomTags.push(allTags[randomIndex].tag);
-          usedIndices.add(randomIndex);
-        }
-      }
-      
-      randomTags.forEach(tag => addTagToPrompt(tag));
-      showToast(`<i class="fas fa-dice"></i> Added ${count} random tags`);
+      // Shuffle tags and pick 5 random ones
+      const shuffled = [...allTags].sort(() => 0.5 - Math.random());
+      shuffled.slice(0, 5).forEach(tagObj => addTagToPrompt(tagObj.tag));
     }
     
+    // Update counters
     function updateCounters() {
       const tags = promptField.value.split(',').filter(t => t.trim());
       tagCount.textContent = tags.length;
       charCount.textContent = promptField.value.length;
     }
     
+    // Show toast notification
     function showToast(msg, type = 'success') {
-      toast.innerHTML = msg;
-      toast.className = 'toast';
-      
-      if (type === 'error') {
-        toast.style.background = 'var(--red)';
-      } else if (type === 'info') {
-        toast.style.background = 'var(--blue)';
-      } else {
-        toast.style.background = 'var(--green)';
-      }
-      
-      setTimeout(() => {
-        toast.classList.add('show');
-      }, 10);
-      
-      setTimeout(() => {
-        toast.classList.remove('show');
-      }, 2500);
+      toast.textContent = msg;
+      toast.className = 'toast show';
+      setTimeout(() => toast.className = 'toast', 2000);
     }
     
     // Initialize categories
-    function initCategories() {
-      Object.entries(tagsByCategory).forEach(([cat, tags]) => {
-        const card = document.createElement('div'); 
-        card.className = 'category-card';
-        
-        const header = document.createElement('div'); 
-        header.className = 'category-header';
-        header.onclick = () => card.classList.toggle('collapsed');
-        header.innerHTML = `
-          <h2><i class="fas fa-folder"></i> ${cat}</h2>
-          <i class="fas fa-chevron-down"></i>
-        `;
-        card.appendChild(header);
-        
-        const section = document.createElement('div'); 
-        section.className = 'tag-section';
-        
-        tags.forEach(({tag, desc}) => {
-          const cont = document.createElement('div'); 
-          cont.className = 'tag-container';
-          cont.onclick = () => addTagToPrompt(tag);
-          cont.innerHTML = `
-            <div class="tag"><i class="fas fa-tag"></i> ${tag}</div>
-            <div class="description">${desc}</div>
-          `;
-          section.appendChild(cont);
-        });
-        
-        card.appendChild(section);
-        categoriesDiv.appendChild(card);
+    Object.entries(tagsByCategory).forEach(([cat, tags]) => {
+      const card = document.createElement('div'); 
+      card.className = 'category-card';
+      
+      const header = document.createElement('div'); 
+      header.className = 'category-header';
+      header.onclick = () => card.classList.toggle('collapsed');
+      header.innerHTML = `<h2><i class="fas fa-folder"></i> ${cat}</h2><i class="fas fa-chevron-down"></i>`;
+      card.appendChild(header);
+      
+      const section = document.createElement('div'); 
+      section.className = 'tag-section';
+      
+      tags.forEach(({tag, desc}) => {
+        const cont = document.createElement('div'); 
+        cont.className = 'tag-container';
+        cont.onclick = () => addTagToPrompt(tag);
+        cont.innerHTML = `<div class="tag">${tag}</div><div class="description">${desc}</div>`;
+        section.appendChild(cont);
       });
-    }
-
+      
+      card.appendChild(section);
+      categoriesDiv.appendChild(card);
+    });
+    
     // Event listeners
-    customTagInput.addEventListener('keypress', e => { 
-      if (e.key === 'Enter') addCustomTag(); 
+    unifiedInput.addEventListener('input', function() {
+      showSuggestions(this.value);
     });
     
-    tagSearchInput.addEventListener('input', function() {
-      showSuggestions(this.value, this);
+    unifiedInput.addEventListener('keydown', handleKeyDown);
+    
+    unifiedInput.addEventListener('focus', function() {
+      if (this.value) showSuggestions(this.value);
     });
     
-    customTagInput.addEventListener('input', function() {
-      showSuggestions(this.value, this);
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!unifiedInput.contains(e.target) && 
+          !suggestionsDropdown.contains(e.target)) {
+        suggestionsDropdown.style.display = 'none';
+      }
     });
     
-    customTagInput.addEventListener('focus', function() {
-      if (this.value) showSuggestions(this.value, this);
+    // Hide dropdown on scroll/resize
+    window.addEventListener('scroll', function() {
+      suggestionsDropdown.style.display = 'none';
+    });
+    
+    window.addEventListener('resize', function() {
+      suggestionsDropdown.style.display = 'none';
     });
     
     promptField.addEventListener('input', updateCounters);
     
-    // Initialize the app
-    initCategories();
+    // Initialize
     updateCounters();
     
-    // Add a welcome toast
-    setTimeout(() => {
-      showToast('<i class="fas fa-smile"></i> Welcome! Start by searching or browsing tags');
-    }, 1000);
+    // Collapse all categories by default
+    document.querySelectorAll('.category-card').forEach(card => {
+      card.classList.add('collapsed');
+    });
   </script>
 </body>
 </html>

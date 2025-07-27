@@ -9,6 +9,10 @@ const tagsByCategory = {
       "desc": "Image features one boy"
     },
     {
+      "tag": "1man",
+      "desc": "Image features one man"
+    },
+    {
       "tag": "solo",
       "desc": "Only one character in the image"
     },
@@ -115,6 +119,10 @@ const tagsByCategory = {
     {
       "tag": "thighs",
       "desc": "Thighs prominently visible"
+    },
+    {
+      "tag": "bare_legs",
+      "desc": "Bare legs visible"
     },
     {
       "tag": "cleavage",
@@ -370,7 +378,7 @@ const tagsByCategory = {
   "CNC (Consensual Non-Consent)": [
     {
       "tag": "rape",
-      "desc": "Non consent forced sex"
+      "desc": "Non consensual forced penetration"
     },
     {
       "tag": "CNC",
@@ -1455,7 +1463,7 @@ const tagsByCategory = {
       "desc": "Character livestreaming sexual act"
     },
     {
-      "tag": "POV",
+      "tag": "pov",
       "desc": "From viewer or participant\u2019s perspective"
     },
     {
