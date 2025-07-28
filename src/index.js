@@ -2,6 +2,8 @@
     let appTags = {};
     let allTags = [];
     let descriptionsAvailable = true;
+    let backspaceTimer = null;
+    let backspaceCount = 0;
     const categoriesDiv = document.getElementById("categories");
     const promptField = document.getElementById("promptField");
     const unifiedInput = document.getElementById("unifiedInput");
@@ -109,6 +111,31 @@
         })
         .catch(error => {
           console.error('Error loading default tags:', error);
+          showToast('Error loading tags', 'error');
+        });
+    }
+
+    function loadDanbooruTags() {
+      fetch('../tags/default.csv')
+        .then(response => response.text())
+        .then(text => {
+          const lines = text.split('\n').filter(line => line.trim());
+          const tags = lines.map(line => {
+            const [tag, popularity] = line.split(',').map(item => item.trim());
+            return { tag, popularity: parseInt(popularity) || 0 };
+          })
+          .sort((a, b) => b.popularity - a.popularity)
+          .map(item => ({ tag: item.tag, desc: "" }));
+          
+          appTags = { "Danbooru Tags": tags };
+          descriptionsAvailable = false;
+          saveTagsToStorage('csv');
+          renderCategories();
+          toggleDescriptions(false);
+          showToast('Danbooru tags loaded');
+        })
+        .catch(error => {
+          console.error('Error loading Danbooru tags:', error);
           showToast('Error loading tags', 'error');
         });
     }
@@ -297,7 +324,7 @@
       
       // Update UI
       document.getElementById('promptNameInput').value = '';
-      populateSavedPromptsDropdown();
+      populateSavedPromptsList();
       showToast(`"${name}" saved`);
     }
 
@@ -316,43 +343,60 @@
       }
     }
 
-    function deleteSavedPrompt() {
-      const dropdown = document.getElementById('savedPromptsDropdown');
-      const name = dropdown.value;
-      
+    function deleteSavedPrompt(name) {
       if (!name) {
-        showToast('Select a prompt to delete', 'error');
+        showToast('Prompt name not provided', 'error');
         return;
       }
       
       const savedPrompts = JSON.parse(localStorage.getItem('savedPrompts') || {});
-      delete savedPrompts[name];
-      localStorage.setItem('savedPrompts', JSON.stringify(savedPrompts));
-      
-      populateSavedPromptsDropdown();
-      showToast(`"${name}" deleted`);
+      if (savedPrompts[name]) {
+        delete savedPrompts[name];
+        localStorage.setItem('savedPrompts', JSON.stringify(savedPrompts));
+        populateSavedPromptsList();
+        showToast(`"${name}" deleted`);
+      } else {
+        showToast('Prompt not found', 'error');
+      }
     }
 
-    function populateSavedPromptsDropdown() {
-      const dropdown = document.getElementById('savedPromptsDropdown');
+    function populateSavedPromptsList() {
+      const list = document.getElementById('savedPromptsList');
+      list.innerHTML = '';
+      
       const savedPrompts = JSON.parse(localStorage.getItem('savedPrompts') || {});
       
-      // Save current selection
-      const currentSelection = dropdown.value;
-      
-      // Clear and repopulate
-      dropdown.innerHTML = '<option value="">Select a saved prompt</option>';
-      
       Object.keys(savedPrompts).sort().forEach(name => {
-        const option = document.createElement('option');
-        option.value = name;
-        option.textContent = name;
-        dropdown.appendChild(option);
+        const item = document.createElement('div');
+        item.className = 'saved-prompt-item';
+        
+        item.innerHTML = `
+          <span class="prompt-name">${name}</span>
+          <div class="prompt-actions">
+            <button class="load-btn" onclick="loadSavedPrompt('${name}')">
+              <i class="fas fa-download"></i> Load
+            </button>
+            <button class="copy-btn" onclick="copySavedPrompt('${name}')">
+              <i class="fas fa-copy"></i> Copy
+            </button>
+            <button class="delete-btn" onclick="deleteSavedPrompt('${name}')">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        `;
+        
+        list.appendChild(item);
       });
+    }
+
+    function copySavedPrompt(name) {
+      const savedPrompts = JSON.parse(localStorage.getItem('savedPrompts') || {});
+      const prompt = savedPrompts[name];
       
-      // Restore selection if possible
-      if (savedPrompts[currentSelection]) {
-        dropdown.value = currentSelection;
+      if (prompt) {
+        navigator.clipboard.writeText(prompt).then(() => {
+          showToast(`"${name}" copied to clipboard`);
+        });
       }
     }
 
@@ -467,7 +511,22 @@
       }
       if (e.key === 'Backspace' && unifiedInput.value === '') {
         e.preventDefault();
-        removeLastTag();
+        
+        // Reset counter if last backspace was more than 300ms ago
+        if (backspaceTimer === null) {
+          backspaceCount = 1;
+          backspaceTimer = setTimeout(() => {
+            backspaceTimer = null;
+            backspaceCount = 0;
+          }, 300);
+        } else {
+          backspaceCount++;
+        }
+        
+        // Only remove tag if it's a single tap (not held)
+        if (backspaceCount === 1) {
+          removeLastTag();
+        }
       }
     }
 
@@ -515,7 +574,7 @@
     // Initialize app on load
     window.addEventListener('DOMContentLoaded', () => {
       initApp();
-      populateSavedPromptsDropdown(); // Add this line
+      populateSavedPromptsList(); // Add this line
     });
     
     // Global for keyboard navigation

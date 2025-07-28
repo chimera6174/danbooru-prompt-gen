@@ -60,6 +60,9 @@
           <button id="loadDefaultTags" class="load-tags-btn" onclick="loadDefaultTags()">
             <i class="fas fa-download"></i> Load Default Tags (NSFW)
           </button>
+          <button id="loadDanbooruTags" class="load-tags-btn" onclick="loadDanbooruTags()">
+            <i class="fas fa-download"></i> Load Danbooru Tags
+          </button>
           <label class="file-input-label">
             <input type="file" id="tagsFileInput" accept=".json,.txt,.csv">
             <i class="fas fa-file-import"></i> Load Custom Tags 
@@ -78,12 +81,7 @@
         <i class="fas fa-chevron-down"></i>
       </div>
       <div class="saved-content">
-        <select id="savedPromptsDropdown" onchange="loadSavedPrompt(this.value)">
-          <option value="">Select a saved prompt</option>
-        </select>
-        <button class="delete-saved-btn" onclick="deleteSavedPrompt()">
-          <i class="fas fa-trash"></i> Delete
-        </button>
+        <div id="savedPromptsList"></div>
       </div>
     </div>
     <div class="prompt-container">
@@ -104,8 +102,10 @@
         <h3><i class="fas fa-search"></i> Add Custom Tag or Search</h3>
           <div class="unified-input-wrapper">
             <input type="text" id="unifiedInput" placeholder="Type to search tags or add custom...">
-            <button onclick="handleUnifiedAdd()"><i class="fas fa-plus"></i> Add</button>
-            <button onclick="removeLastTag()" class="remove-btn"><i class="fas fa-delete-left"></i> Remove</button>
+            <div class="action-buttons">
+              <button onclick="handleUnifiedAdd()"><i class="fas fa-plus"></i> Add</button>
+              <button onclick="removeLastTag()" class="remove-btn"><i class="fas fa-delete-left"></i> Remove</button>
+            </div>
           </div>
         <div id="suggestionsDropdown" class="suggestions-dropdown"></div>
       </div>

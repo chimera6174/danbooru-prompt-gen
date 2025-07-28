@@ -123,6 +123,15 @@ button:active { transform: translateY(0); }
   margin-top: 1rem;
   position: relative;
 }
+.search-field {
+  grid-column: 1 / 3;
+}
+
+.action-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+}
 .unified-input-container h3 {
   font-size: 1rem;
   color: var(--accent);
@@ -132,7 +141,8 @@ button:active { transform: translateY(0); }
   margin-bottom: 0.6rem;
 }
 .unified-input-wrapper {
-  display: flex;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
   gap: 0.4rem;
 }
 .unified-input-wrapper input {
@@ -144,6 +154,7 @@ button:active { transform: translateY(0); }
   color: var(--text);
   font-size: 0.9rem;
   transition: border-color 0.3s;
+  grid-column: 1 / 3;
 }
 .unified-input-wrapper input:focus {
   outline: none;
@@ -306,7 +317,9 @@ footer {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   }
   .unified-input-wrapper {
+    display: flex;
     flex-direction: column;
+    gap: 0.4rem;
   }
   .unified-input-wrapper button {
     width: 100%;
@@ -319,6 +332,36 @@ footer {
   }
   .delete-saved-btn {
     width: 100%;
+  }
+  .saved-prompt-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .prompt-actions {
+    margin-top: 0.5rem;
+    justify-content: flex-end;
+  }
+  .action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
+  }
+}
+
+@media (min-width: 601px) {
+  .unified-input-wrapper {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+  }
+  
+  .unified-input-wrapper input {
+    grid-column: 1;
+  }
+  
+  .action-buttons {
+    grid-column: 2 / 4;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
   }
 }
 
@@ -481,6 +524,23 @@ color: #fff !important;
   margin: 1rem 0;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
+.saved-prompts-container.collapsed .saved-content {
+  display: none;
+}
+.saved-prompts-container:not(.collapsed) .saved-header .fa-chevron-down {
+  transform: rotate(180deg);
+}
+
+.saved-prompt-item {
+  background: var(--base);
+  border-radius: 6px;
+  padding: 0.8rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--overlay);
+}
+
 .saved-header {
   display: flex;
   align-items: center;
@@ -494,6 +554,9 @@ color: #fff !important;
   display: flex;
   align-items: center;
   gap: 0.4rem;
+}
+.saved-header .fa-chevron-down {
+  transition: transform 0.3s;
 }
 .saved-content {
   display: grid;
@@ -510,6 +573,27 @@ color: #fff !important;
   border-radius: 6px;
   font-size: 0.9rem;
 }
+
+.prompt-name {
+  flex: 1;
+  font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.prompt-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+.prompt-actions .delete-btn {
+  background: var(--red) !important;
+  color: white !important;
+}
+.prompt-actions button {
+  padding: 0.4rem 0.6rem;
+  min-width: auto;
+}
+
 .delete-saved-btn {
   background: var(--red);
   color: white;
