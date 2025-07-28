@@ -75,11 +75,27 @@ textarea:focus {
   margin-top: 0.5rem;
 }
 .controls {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 0.5rem;
   margin-top: 0.8rem;
 }
+.controls button, .controls input {
+  min-width: 0;
+}
+#promptNameInput {
+  padding: 0.6rem;
+  background: var(--base);
+  color: var(--text);
+  border: 1px solid var(--overlay);
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+.save-btn {
+  background: var(--blue);
+  color: #fff;
+}
+
 button {
   flex: 1;
   padding: 0.6rem;
@@ -295,6 +311,15 @@ footer {
   .unified-input-wrapper button {
     width: 100%;
   }
+  .controls {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .saved-content {
+    grid-template-columns: 1fr;
+  }
+  .delete-saved-btn {
+    width: 100%;
+  }
 }
 
 /* Animation for tag addition */
@@ -447,4 +472,53 @@ color: #fff !important;
 }
 .category-card.collapsed .tag-section {
   display: grid !important;
+}
+
+.saved-prompts-container {
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.saved-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+}
+.saved-header h3 {
+  font-size: 1rem;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.saved-content {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--overlay);
+}
+.saved-content select {
+  padding: 0.6rem;
+  background: var(--base);
+  color: var(--text);
+  border: 1px solid var(--overlay);
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+.delete-saved-btn {
+  background: var(--red);
+  color: white;
+  padding: 0.6rem;
+  border-radius: 6px;
+  min-width: 100px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
 }

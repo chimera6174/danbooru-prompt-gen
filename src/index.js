@@ -274,6 +274,88 @@
       updateCounters();
     }
 
+    function savePrompt() {
+      const name = document.getElementById('promptNameInput').value.trim();
+      const prompt = promptField.value.trim();
+      
+      if (!name) {
+        showToast('Enter prompt name', 'error');
+        return;
+      }
+      
+      if (!prompt) {
+        showToast('Prompt is empty', 'error');
+        return;
+      }
+      
+      // Get existing saves or create new object
+      const savedPrompts = JSON.parse(localStorage.getItem('savedPrompts') || '{}');
+      
+      // Save new prompt
+      savedPrompts[name] = prompt;
+      localStorage.setItem('savedPrompts', JSON.stringify(savedPrompts));
+      
+      // Update UI
+      document.getElementById('promptNameInput').value = '';
+      populateSavedPromptsDropdown();
+      showToast(`"${name}" saved`);
+    }
+
+    function loadSavedPrompt(name) {
+      if (!name) return;
+      
+      const savedPrompts = JSON.parse(localStorage.getItem('savedPrompts') || {});
+      const prompt = savedPrompts[name];
+      
+      if (prompt) {
+        promptField.value = prompt;
+        updateCounters();
+        showToast(`"${name}" loaded`);
+      } else {
+        showToast('Prompt not found', 'error');
+      }
+    }
+
+    function deleteSavedPrompt() {
+      const dropdown = document.getElementById('savedPromptsDropdown');
+      const name = dropdown.value;
+      
+      if (!name) {
+        showToast('Select a prompt to delete', 'error');
+        return;
+      }
+      
+      const savedPrompts = JSON.parse(localStorage.getItem('savedPrompts') || {});
+      delete savedPrompts[name];
+      localStorage.setItem('savedPrompts', JSON.stringify(savedPrompts));
+      
+      populateSavedPromptsDropdown();
+      showToast(`"${name}" deleted`);
+    }
+
+    function populateSavedPromptsDropdown() {
+      const dropdown = document.getElementById('savedPromptsDropdown');
+      const savedPrompts = JSON.parse(localStorage.getItem('savedPrompts') || {});
+      
+      // Save current selection
+      const currentSelection = dropdown.value;
+      
+      // Clear and repopulate
+      dropdown.innerHTML = '<option value="">Select a saved prompt</option>';
+      
+      Object.keys(savedPrompts).sort().forEach(name => {
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = name;
+        dropdown.appendChild(option);
+      });
+      
+      // Restore selection if possible
+      if (savedPrompts[currentSelection]) {
+        dropdown.value = currentSelection;
+      }
+    }
+
     // Handle unified add (custom tag or selected suggestion)
     function handleUnifiedAdd() {
       const tag = unifiedInput.value.trim();
@@ -416,18 +498,6 @@
       }
     }
     
-    // Add random tags
-    function addRandomTags() {
-      if (allTags.length === 0) {
-        showToast('Load tags first', 'error');
-        return;
-      }
-      
-      // Shuffle tags and pick 5 random ones
-      const shuffled = [...allTags].sort(() => 0.5 - Math.random());
-      shuffled.slice(0, 5).forEach(tagObj => addTagToPrompt(tagObj.tag));
-    }
-    
     // Update counters
     function updateCounters() {
       const tags = promptField.value.split(',').filter(t => t.trim());
@@ -443,7 +513,10 @@
     }
     
     // Initialize app on load
-    window.addEventListener('DOMContentLoaded', initApp);
+    window.addEventListener('DOMContentLoaded', () => {
+      initApp();
+      populateSavedPromptsDropdown(); // Add this line
+    });
     
     // Global for keyboard navigation
     let currentSuggestionIndex = -1;

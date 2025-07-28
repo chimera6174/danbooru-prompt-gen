@@ -72,6 +72,20 @@
         </div>
       </div>
     </div>
+    <div class="saved-prompts-container collapsed" id="savedPromptsContainer">
+      <div class="saved-header" onclick="document.getElementById('savedPromptsContainer').classList.toggle('collapsed')">
+        <h3><i class="fas fa-bookmark"></i> Saved Prompts</h3>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+      <div class="saved-content">
+        <select id="savedPromptsDropdown" onchange="loadSavedPrompt(this.value)">
+          <option value="">Select a saved prompt</option>
+        </select>
+        <button class="delete-saved-btn" onclick="deleteSavedPrompt()">
+          <i class="fas fa-trash"></i> Delete
+        </button>
+      </div>
+    </div>
     <div class="prompt-container">
       <textarea id="promptField" placeholder="Your prompt will appear here..."></textarea>
       <div class="prompt-info">
@@ -81,7 +95,8 @@
       <div class="controls">
         <button class="clear-btn" onclick="clearPrompt()"><i class="fas fa-trash"></i> Clear</button>
         <button class="copy-btn" onclick="copyPrompt()"><i class="fas fa-copy"></i> Copy</button>
-        <button class="random-btn" onclick="addRandomTags()"><i class="fas fa-random"></i> Random</button>
+        <input type="text" id="promptNameInput" placeholder="Prompt Name">
+        <button class="save-btn" onclick="savePrompt()"><i class="fas fa-save"></i> Save</button>
       </div>
       
       <!-- Unified search/custom tag input -->
