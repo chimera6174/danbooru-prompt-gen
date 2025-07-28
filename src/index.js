@@ -454,6 +454,7 @@
           addTagToPrompt(tag);
           unifiedInput.value = '';
           suggestionsDropdown.style.display = 'none';
+          unifiedInput.focus();
         };
         suggestionsDropdown.appendChild(item);
       });
