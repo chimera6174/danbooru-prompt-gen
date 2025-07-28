@@ -18,6 +18,7 @@
 - 🎨 **Theming Support** – Switch between default themes or add your own.
 - 🔍 **Autocomplete Suggestions** – Get tag suggestions as you type.
 - 💾 **Prompt Saving** – Save and manage your favorite tag combinations.
+- 📱 **Mobile Friendly** - Completely responsive design, looks good on every screen.
 
 ---
 
