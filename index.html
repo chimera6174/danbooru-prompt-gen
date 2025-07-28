@@ -29,13 +29,16 @@
   <meta property="og:description" content="Create complex Danbooru-style prompts for AI art generation">
   <meta property="og:type" content="website">
   
+  <!-- Styles -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="src/index.css">
+  <link rel="stylesheet" href="./src/css/themes/catppuccin_latte.css">
+  <link rel="stylesheet" href="./src/css/index.css">
+
 </head>
 <body>
   <div class="container">
     <header>
-      <img src="./assets/logo_2048.png" style="width: 5em; height: 5em;" alt="logo">
+      <img src="./assets/images/logo.png" style="width: 5em; height: 5em;" alt="logo">
       <h1>Danbooru Prompt Generator</h1>
       <p>Create complex prompts by selecting tags below</p>
     </header>
@@ -70,8 +73,22 @@
         </div>
         <div class="settings-row">
           <label>
-          Supports <a href="./tags/example.json" target="_blank">JSON</a>, <a href="./tags/example.txt" target="_blank">TXT</a>, and <a href="./tags/example.csv" target="_blank">CSV</a> for custom tags. Descriptions and Categories are not supported with TXT or CSV.
+          Supports <a href="./data/example.json" target="_blank">JSON</a>, <a href="./data/example.txt" target="_blank">TXT</a>, and <a href="./data/example.csv" target="_blank">CSV</a> for custom tags. Descriptions and Categories are not supported with TXT or CSV.
           </label>
+        </div>
+        <div class="settings-row">
+          <label for="themeSelect">Theme</label>
+          <select id="themeSelect">
+            <option value="catppuccin_latte">Catppuccin Latte</option>
+            <option value="sekiratte">Sekiratte</option>
+          </select>
+        </div>
+        <div class="settings-row">
+          <label for="accentColor">Accent Color</label>
+          <div class="accent-inputs">
+            <input type="color" id="accentColorPicker">
+            <input type="text" id="accentColorInput" placeholder="#hex">
+          </div>
         </div>
       </div>
     </div>
@@ -124,6 +141,6 @@
   
   <div class="toast" id="toast"></div>
   
-  <script src="src/index.js"></script>
+  <script src="./src/js/index.js"></script>
 </body>
 </html>

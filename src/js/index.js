@@ -35,10 +35,79 @@
           console.error("Error loading saved tags:", e);
         }
       }
+
+    // Theme configuration
+      const themeSelect = document.getElementById('themeSelect');
+      const savedTheme = localStorage.getItem('theme') || 'sekiratte';
+      setTheme(savedTheme);
+      themeSelect.value = savedTheme;
+      
+      themeSelect.addEventListener('change', function() {
+        setTheme(this.value);
+      });
+      
+      // Accent color configuration
+      const accentColorPicker = document.getElementById('accentColorPicker');
+      const accentColorInput = document.getElementById('accentColorInput');
+      
+      // Set initial values
+      const savedAccent = localStorage.getItem('accentColor');
+      if (savedAccent) {
+        setAccentColor(savedAccent);
+        accentColorInput.value = savedAccent;
+        accentColorPicker.value = savedAccent;
+      } else {
+        const currentAccent = getCurrentAccentHex();
+        accentColorInput.placeholder = currentAccent;
+      }
+      
+      accentColorPicker.addEventListener('input', function() {
+        accentColorInput.value = this.value;
+        setAccentColor(this.value);
+      });
+      
+      accentColorInput.addEventListener('change', function() {
+        let value = this.value.trim();
+        if (value) {
+          if (!value.startsWith('#')) value = '#' + value;
+          if (value.length === 4) { // Expand short hex
+            value = '#' + value[1] + value[1] + value[2] + value[2] + value[3] + value[3];
+          }
+          if (value.match(/^#([0-9A-F]{6})$/i)) {
+            accentColorPicker.value = value;
+            setAccentColor(value);
+          }
+        } else {
+          // Clear override
+          document.documentElement.style.removeProperty('--accent');
+          localStorage.removeItem('accentColor');
+          accentColorInput.placeholder = getCurrentAccentHex();
+        }
+      });
       
       // Set up event listeners
       setupEventListeners();
       updateCounters();
+    }
+
+
+    function setTheme(themeName) {
+      const themeLink = document.getElementById('theme-style');
+      themeLink.href = `../css/themes/${themeName}.css`;
+      localStorage.setItem('theme', themeName);
+      
+      // Update accent input placeholder
+      setTimeout(() => {
+        const currentAccent = getCurrentAccentHex();
+        if (!localStorage.getItem('accentColor')) {
+          document.getElementById('accentColorInput').placeholder = currentAccent;
+        }
+      }, 100);
+    }
+
+    function setAccentColor(color) {
+      document.documentElement.style.setProperty('--accent', color);
+      localStorage.setItem('accentColor', color);
     }
     
     // Set up event listeners
@@ -99,7 +168,7 @@
     
     // Load default tags
     function loadDefaultTags() {
-      fetch('../tags/default.json')
+      fetch('../../data/default.json')
         .then(response => response.json())
         .then(data => {
           appTags = data;
@@ -116,7 +185,7 @@
     }
 
     function loadDanbooruTags() {
-      fetch('../tags/default.csv')
+      fetch('../../data/default.csv')
         .then(response => response.text())
         .then(text => {
           const lines = text.split('\n').filter(line => line.trim());
@@ -557,6 +626,28 @@
         showToast('No tags to remove', 'error');
       }
     }
+
+    function rgbToHex(rgb) {
+      const sep = rgb.indexOf(",") > -1 ? "," : " ";
+      const parts = rgb.substr(4).split(")")[0].split(sep);
+      let r = (+parts[0]).toString(16),
+          g = (+parts[1]).toString(16),
+          b = (+parts[2]).toString(16);
+      if (r.length == 1) r = "0" + r;
+      if (g.length == 1) g = "0" + g;
+      if (b.length == 1) b = "0" + b;
+      return "#" + r + g + b;
+    }
+
+    function getCurrentAccentHex() {
+      const computed = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+      if (computed.startsWith('#')) {
+        return computed;
+      } else if (computed.startsWith('rgb')) {
+        return rgbToHex(computed);
+      }
+      return '#cba6f7'; // fallback
+    }
     
     // Update counters
     function updateCounters() {
@@ -575,7 +666,9 @@
     // Initialize app on load
     window.addEventListener('DOMContentLoaded', () => {
       initApp();
-      populateSavedPromptsList(); // Add this line
+      populateSavedPromptsList();
+      const themeLink = document.querySelector('link[href*="themes"]');
+      if (themeLink) themeLink.id = 'theme-style';
     });
     
     // Global for keyboard navigation
