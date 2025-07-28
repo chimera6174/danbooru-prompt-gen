@@ -93,7 +93,7 @@
 
     function setTheme(themeName) {
       const themeLink = document.getElementById('theme-style');
-      themeLink.href = `../css/themes/${themeName}.css`;
+      themeLink.href = `./src/css/themes/${themeName}.css`;
       localStorage.setItem('theme', themeName);
       
       // Update accent input placeholder
@@ -667,8 +667,6 @@
     window.addEventListener('DOMContentLoaded', () => {
       initApp();
       populateSavedPromptsList();
-      const themeLink = document.querySelector('link[href*="themes"]');
-      if (themeLink) themeLink.id = 'theme-style';
     });
     
     // Global for keyboard navigation
