@@ -2,7 +2,7 @@
   <img src="assets/images/logo.png" width="100" alt="Danbooru Prompt Generator Logo">
 </p>
 
-<h1 align="center">Danbooru Prompt Generator</h1>
+<h1 align="center">Danbooru Prompt Helper</h1>
 
 <p align="center">
   A sleek, lightweight Danbooru-style tag prompt generator.<br>
@@ -22,7 +22,7 @@
 
 ---
 
-## 🛠️ How to Use
+## 🛠️ Getting Started
 
 Just clone the repo and open `index.html` in your browser:
 
@@ -47,3 +47,4 @@ You are free to copy, modify, and redistribute as long as you keep it open-sourc
 
 - Inspired by tag-based prompt tools like Danbooru.
 - Built with vanilla HTML, CSS, and JavaScript by [chimera6174](https://github.com/chimera6174).
+- [Sortable.js](https://github.com/sortablejs/sortable) for tag sorting.
