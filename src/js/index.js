@@ -18,7 +18,6 @@
     // Tag Management
     let currentTags = [];
     let focusedTagIndex = -1;
-    let dragStartIndex = -1;
 
     // Initialize app
     function initApp() {
@@ -42,7 +41,7 @@
         }
       }
 
-    // Theme configuration
+      // Theme configuration
       const themeSelect = document.getElementById('themeSelect');
       const savedTheme = localStorage.getItem('theme') || 'sekiratte';
       setTheme(savedTheme);
@@ -128,17 +127,6 @@
           if (e.target !== removeBtn) {
             setFocusedIndex(index);
           }
-        });
-        
-        // Drag and drop handlers
-        tagEl.addEventListener('dragstart', () => {
-          dragStartIndex = index;
-          tagEl.classList.add('dragging');
-        });
-        
-        tagEl.addEventListener('dragend', () => {
-          tagEl.classList.remove('dragging');
-          dragStartIndex = -1;
         });
         
         tagContainer.appendChild(tagEl);
@@ -273,14 +261,14 @@
         }
       });
       
-      // Hide dropdown on scroll/resize
-      window.addEventListener('scroll', function() {
-        suggestionsDropdown.style.display = 'none';
-      });
-      
-      window.addEventListener('resize', function() {
-        suggestionsDropdown.style.display = 'none';
-      });
+      // Hide dropdown on scroll/resize (Not needed for now)
+      // window.addEventListener('scroll', function() {
+      //   suggestionsDropdown.style.display = 'none';
+      // });
+      //
+      // window.addEventListener('resize', function() {
+      //   suggestionsDropdown.style.display = 'none';
+      // });
       
       promptField.addEventListener('input', updateCounters);
     }
@@ -741,6 +729,7 @@
       });
     }
 
+    // Remove last tag
     function removeLastTag() {
       const tags = promptField.value.split(',').map(t => t.trim()).filter(t => t);
       if (tags.length > 0) {
@@ -775,21 +764,6 @@
       return '#cba6f7'; // fallback
     }
 
-    function getDragAfterElement(container, y) {
-      const draggableElements = [...container.querySelectorAll('.tag-item:not(.dragging)')];
-      
-      return draggableElements.reduce((closest, child) => {
-        const box = child.getBoundingClientRect();
-        const offset = y - box.top - box.height / 2;
-        
-        if (offset < 0 && offset > closest.offset) {
-          return { offset: offset, element: child };
-        } else {
-          return closest;
-        }
-      }, { offset: Number.NEGATIVE_INFINITY }).element;
-    }
-    
     // Show toast notification
     function showToast(msg, type = 'success') {
       toast.textContent = msg;
@@ -797,69 +771,21 @@
       setTimeout(() => toast.className = 'toast', 2000);
     }
 
-    // Handle drag over
-    tagContainer.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      const afterElement = getDragAfterElement(tagContainer, e.clientY);
-      const draggable = document.querySelector('.dragging');
-      
-      if (draggable) {
-        // Show visual indicator
-        if (afterElement) {
-          const indicator = document.querySelector('.drop-indicator') || document.createElement('div');
-          indicator.className = 'drop-indicator';
-          if (!document.querySelector('.drop-indicator')) {
-            afterElement.parentNode.insertBefore(indicator, afterElement);
-          } else {
-            afterElement.parentNode.insertBefore(indicator, afterElement);
-          }
-        } else {
-          const indicator = document.querySelector('.drop-indicator');
-          if (indicator) {
-            indicator.remove();
-          }
-        }
-      }
-    });
-
-    // Handle drop
-    tagContainer.addEventListener('drop', (e) => {
-      e.preventDefault();
-      const indicator = document.querySelector('.drop-indicator');
-      if (indicator) indicator.remove();
-      
-      const draggable = document.querySelector('.dragging');
-      if (!draggable) return;
-      
-      const afterElement = getDragAfterElement(tagContainer, e.clientY);
-      const dropIndex = afterElement ? 
-        parseInt(afterElement.dataset.index) : 
-        currentTags.length;
-      
-      // Remove from original position
-      const draggedTag = currentTags[dragStartIndex];
-      currentTags.splice(dragStartIndex, 1);
-      
-      // Insert at new position
-      const newIndex = afterElement ? dropIndex : currentTags.length;
-      currentTags.splice(newIndex, 0, draggedTag);
-      
-      // Update focus
-      if (focusedTagIndex === dragStartIndex) {
-        setFocusedIndex(newIndex);
-      } else {
-        renderTags();
-      }
-
-      focusedTagIndex = newIndex;
-      renderTags();
-    });
     
     // Initialize app on load
     window.addEventListener('DOMContentLoaded', () => {
       initApp();
       populateSavedPromptsList();
     });
-    
+    new Sortable(tagContainer, {
+      animation: 150,                 // smooth slide
+      ghostClass: 'tag-item--ghost',  // CSS class for the dragged clone
+      onEnd: evt => {
+        const moved = currentTags.splice(evt.oldIndex, 1)[0];
+        currentTags.splice(evt.newIndex, 0, moved);
+        focusedTagIndex = evt.newIndex;
+        renderTags();
+      }
+    });
     // Global for keyboard navigation
     let currentSuggestionIndex = -1;

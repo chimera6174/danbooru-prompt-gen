@@ -636,11 +636,7 @@ color: var(--btn-text) !important;
 
 .tag-item.focused {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent);
-}
-
-.tag-item.dragging {
-  opacity: 0.5;
+  box-shadow: 0 0 0 0.1rem var(--accent);
 }
 
 .tag-remove {
@@ -659,20 +655,6 @@ color: var(--btn-text) !important;
   color: var(--red);
 }
 
-.drop-indicator {
-  height: 2px;
-  background-color: var(--accent);
-  position: relative;
-  margin: 5px 0;
-}
-
-.drop-indicator::before {
-  content: "";
-  position: absolute;
-  top: -5px;
-  left: -5px;
-  right: -5px;
-  bottom: -5px;
-  background-color: rgba(var(--accent-rgb), 0.1);
-  border-radius: 4px;
+.tag-item--ghost {
+  opacity: 0.4;
 }
