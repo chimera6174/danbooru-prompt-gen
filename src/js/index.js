@@ -5,6 +5,7 @@
     let backspaceTimer = null;
     let backspaceCount = 0;
     const categoriesDiv = document.getElementById("categories");
+    const tagContainer = document.getElementById("tagContainer");
     const promptField = document.getElementById("promptField");
     const unifiedInput = document.getElementById("unifiedInput");
     const tagCount = document.getElementById("tagCount");
@@ -14,6 +15,11 @@
     const descriptionToggle = document.getElementById("descriptionToggle");
     const tagsFileInput = document.getElementById("tagsFileInput");
     
+    // Tag Management
+    let currentTags = [];
+    let focusedTagIndex = -1;
+    let dragStartIndex = -1;
+
     // Initialize app
     function initApp() {
       // Load settings from localStorage
@@ -88,8 +94,135 @@
       // Set up event listeners
       setupEventListeners();
       updateCounters();
+      renderTags();
     }
 
+    function renderTags() {
+      tagContainer.innerHTML = '';
+      
+      currentTags.forEach((tag, index) => {
+        const tagEl = document.createElement('div');
+        tagEl.className = 'tag-item';
+        tagEl.draggable = true;
+        tagEl.dataset.index = index;
+        
+        if (index === focusedTagIndex) {
+          tagEl.classList.add('focused');
+        }
+        
+        const tagText = document.createElement('span');
+        tagText.textContent = tag;
+        tagEl.appendChild(tagText);
+        
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'tag-remove';
+        removeBtn.innerHTML = '&times;';
+        removeBtn.onclick = (e) => {
+          e.stopPropagation();
+          removeTagAtIndex(index);
+        };
+        tagEl.appendChild(removeBtn);
+        
+        // Click to focus
+        tagEl.addEventListener('click', (e) => {
+          if (e.target !== removeBtn) {
+            setFocusedIndex(index);
+          }
+        });
+        
+        // Drag and drop handlers
+        tagEl.addEventListener('dragstart', () => {
+          dragStartIndex = index;
+          tagEl.classList.add('dragging');
+        });
+        
+        tagEl.addEventListener('dragend', () => {
+          tagEl.classList.remove('dragging');
+          dragStartIndex = -1;
+        });
+        
+        tagContainer.appendChild(tagEl);
+      });
+      
+      // Update counters
+      updateCounters();
+      
+      // Set focus to last tag if none focused
+      if (focusedTagIndex === -1 && currentTags.length > 0) {
+        setFocusedIndex(currentTags.length - 1);
+      }
+    }
+    function setFocusedIndex(index) {
+      focusedTagIndex = index;
+      renderTags();
+    }
+    function addTagToPrompt(tag) {
+      if (!currentTags.includes(tag)) {
+        // Insert after focused tag
+        const insertIndex = focusedTagIndex === -1 ? 
+          currentTags.length : 
+          Math.min(focusedTagIndex + 1, currentTags.length);
+        
+        currentTags.splice(insertIndex, 0, tag);
+        setFocusedIndex(insertIndex);
+        showToast(`${tag} added`);
+        
+        // Add visual feedback to tag in categories
+        const tagEls = document.querySelectorAll('.tag-container');
+        tagEls.forEach(el => {
+          if (el.querySelector('.tag').textContent === tag) {
+            el.classList.add('tag-highlight');
+            setTimeout(() => el.classList.remove('tag-highlight'), 1500);
+          }
+        });
+      }
+    }
+    function removeTagAtIndex(index) {
+      if (index >= 0 && index < currentTags.length) {
+        const removedTag = currentTags.splice(index, 1)[0];
+        
+        // Adjust focus
+        if (currentTags.length === 0) {
+          focusedTagIndex = -1;
+        } else if (index === focusedTagIndex) {
+          setFocusedIndex(Math.min(index, currentTags.length - 1));
+        } else if (index < focusedTagIndex) {
+          setFocusedIndex(focusedTagIndex - 1);
+        }
+        
+        showToast(`Removed: ${removedTag}`);
+        renderTags();
+      }
+    }
+    function removeFocusedTag() {
+      if (focusedTagIndex >= 0) {
+        removeTagAtIndex(focusedTagIndex);
+      } else {
+        showToast('No tags to remove', 'error');
+      }
+    }
+    function swapTags(index1, index2) {
+      if (index1 >= 0 && index2 >= 0 && 
+          index1 < currentTags.length && 
+          index2 < currentTags.length) {
+        [currentTags[index1], currentTags[index2]] = 
+          [currentTags[index2], currentTags[index1]];
+        
+        // Update focus if needed
+        if (focusedTagIndex === index1) {
+          setFocusedIndex(index2);
+        } else if (focusedTagIndex === index2) {
+          setFocusedIndex(index1);
+        } else {
+          renderTags();
+        }
+      }
+    }
+    function updateCounters() {
+      tagCount.textContent = currentTags.length;
+      charCount.textContent = currentTags.join(', ').length;
+      currentTags.join(', ')
+    }
 
     function setTheme(themeName) {
       const themeLink = document.getElementById('theme-style');
@@ -350,29 +483,9 @@
       toggleDescriptions(descriptionToggle.checked);
     }
 
-    // Add tag to prompt
-    function addTagToPrompt(tag) {
-      let current = promptField.value.split(',').map(t => t.trim()).filter(t => t);
-      if (!current.includes(tag)) {
-        current.push(tag);
-        promptField.value = current.join(', ');
-        showToast(`${tag} added`);
-        
-        // Add visual feedback
-        const tagEls = document.querySelectorAll('.tag-container');
-        tagEls.forEach(el => {
-          if (el.querySelector('.tag').textContent === tag) {
-            el.classList.add('tag-highlight');
-            setTimeout(() => el.classList.remove('tag-highlight'), 1500);
-          }
-        });
-      }
-      updateCounters();
-    }
-
     function savePrompt() {
       const name = document.getElementById('promptNameInput').value.trim();
-      const prompt = promptField.value.trim();
+      const prompt = currentTags.join(', ');
       
       if (!name) {
         showToast('Enter prompt name', 'error');
@@ -398,17 +511,13 @@
     }
 
     function loadSavedPrompt(name) {
-      if (!name) return;
-      
       const savedPrompts = JSON.parse(localStorage.getItem('savedPrompts') || {});
       const prompt = savedPrompts[name];
       
       if (prompt) {
-        promptField.value = prompt;
-        updateCounters();
+        currentTags = prompt.split(',').map(t => t.trim()).filter(t => t);
+        setFocusedIndex(currentTags.length - 1);
         showToast(`"${name}" loaded`);
-      } else {
-        showToast('Prompt not found', 'error');
       }
     }
 
@@ -480,15 +589,19 @@
             const tagEl = items[currentSuggestionIndex].querySelector('.tag');
             if (tagEl) {
               addTagToPrompt(tagEl.textContent);
+              // Clear input and reset suggestions
+              unifiedInput.value = '';
+              suggestionsDropdown.style.display = 'none';
+              currentSuggestionIndex = -1;
             }
           }
         } else {
           // Add as custom tag
           addTagToPrompt(tag);
+          // Clear input
+          unifiedInput.value = '';
+          suggestionsDropdown.style.display = 'none';
         }
-        unifiedInput.value = '';
-        suggestionsDropdown.style.display = 'none';
-        currentSuggestionIndex = -1;
       } else {
         showToast("Enter a tag", 'error');
       }
@@ -579,38 +692,51 @@
         e.preventDefault();
         handleUnifiedAdd();
       }
-      if (e.key === 'Backspace' && unifiedInput.value === '') {
-        e.preventDefault();
-        
-        // Reset counter if last backspace was more than 300ms ago
-        if (backspaceTimer === null) {
-          backspaceCount = 1;
-          backspaceTimer = setTimeout(() => {
-            backspaceTimer = null;
-            backspaceCount = 0;
-          }, 300);
-        } else {
-          backspaceCount++;
+
+      // Tag navigation when input is empty
+      if (unifiedInput.value === '') {
+        if (e.shiftKey && e.key === 'ArrowLeft' && focusedTagIndex > 0) {
+          e.preventDefault();
+          swapTags(focusedTagIndex, focusedTagIndex - 1);
         }
-        
-        // Only remove tag if it's a single tap (not held)
-        if (backspaceCount === 1) {
-          removeLastTag();
+        else if (e.shiftKey && e.key === 'ArrowRight' && focusedTagIndex < currentTags.length - 1) {
+          e.preventDefault();
+          swapTags(focusedTagIndex, focusedTagIndex + 1);
+        }
+        // 2) plain arrows → just move focus
+        else if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          setFocusedIndex(Math.max(0, focusedTagIndex - 1));
+        }
+        else if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          setFocusedIndex(Math.min(currentTags.length - 1, focusedTagIndex + 1));
+        }
+
+        // Backspace to remove focused tag
+        else if (e.key === 'Backspace') {
+          e.preventDefault();
+          removeFocusedTag();
+        }
+        // Ctrl+C to copy
+        else if (e.ctrlKey && e.key === 'c') {
+          e.preventDefault();
+          copyPrompt();
         }
       }
     }
 
     // Clear prompt
     function clearPrompt() { 
-      promptField.value = ''; 
-      updateCounters(); 
+      currentTags = [];
+      focusedTagIndex = -1;
+      renderTags();
       showToast('Cleared'); 
     }
     
     // Copy prompt to clipboard
     function copyPrompt() { 
-      promptField.select();
-      navigator.clipboard.writeText(promptField.value).then(() => {
+      navigator.clipboard.writeText(currentTags.join(', ')).then(() => {
         showToast('Copied to clipboard');
       });
     }
@@ -648,12 +774,20 @@
       }
       return '#cba6f7'; // fallback
     }
-    
-    // Update counters
-    function updateCounters() {
-      const tags = promptField.value.split(',').filter(t => t.trim());
-      tagCount.textContent = tags.length;
-      charCount.textContent = promptField.value.length;
+
+    function getDragAfterElement(container, y) {
+      const draggableElements = [...container.querySelectorAll('.tag-item:not(.dragging)')];
+      
+      return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        
+        if (offset < 0 && offset > closest.offset) {
+          return { offset: offset, element: child };
+        } else {
+          return closest;
+        }
+      }, { offset: Number.NEGATIVE_INFINITY }).element;
     }
     
     // Show toast notification
@@ -662,6 +796,64 @@
       toast.className = 'toast show';
       setTimeout(() => toast.className = 'toast', 2000);
     }
+
+    // Handle drag over
+    tagContainer.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      const afterElement = getDragAfterElement(tagContainer, e.clientY);
+      const draggable = document.querySelector('.dragging');
+      
+      if (draggable) {
+        // Show visual indicator
+        if (afterElement) {
+          const indicator = document.querySelector('.drop-indicator') || document.createElement('div');
+          indicator.className = 'drop-indicator';
+          if (!document.querySelector('.drop-indicator')) {
+            afterElement.parentNode.insertBefore(indicator, afterElement);
+          } else {
+            afterElement.parentNode.insertBefore(indicator, afterElement);
+          }
+        } else {
+          const indicator = document.querySelector('.drop-indicator');
+          if (indicator) {
+            indicator.remove();
+          }
+        }
+      }
+    });
+
+    // Handle drop
+    tagContainer.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const indicator = document.querySelector('.drop-indicator');
+      if (indicator) indicator.remove();
+      
+      const draggable = document.querySelector('.dragging');
+      if (!draggable) return;
+      
+      const afterElement = getDragAfterElement(tagContainer, e.clientY);
+      const dropIndex = afterElement ? 
+        parseInt(afterElement.dataset.index) : 
+        currentTags.length;
+      
+      // Remove from original position
+      const draggedTag = currentTags[dragStartIndex];
+      currentTags.splice(dragStartIndex, 1);
+      
+      // Insert at new position
+      const newIndex = afterElement ? dropIndex : currentTags.length;
+      currentTags.splice(newIndex, 0, draggedTag);
+      
+      // Update focus
+      if (focusedTagIndex === dragStartIndex) {
+        setFocusedIndex(newIndex);
+      } else {
+        renderTags();
+      }
+
+      focusedTagIndex = newIndex;
+      renderTags();
+    });
     
     // Initialize app on load
     window.addEventListener('DOMContentLoaded', () => {

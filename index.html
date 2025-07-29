@@ -105,7 +105,7 @@
       </div>
     </div>
     <div class="prompt-container">
-      <textarea id="promptField" placeholder="Your prompt will appear here..."></textarea>
+      <div id="tagContainer" class="tags-container"></div>
       <div class="prompt-info">
         <span>Tags: <span id="tagCount">0</span></span>
         <span>Chars: <span id="charCount">0</span></span>
@@ -129,7 +129,7 @@
               ><i class="fas fa-plus"></i> Add</button>
               <button 
                 onmousedown="event.preventDefault();" 
-                onclick="removeLastTag()" 
+                onclick="removeFocusedTag()" 
                 class="remove-btn"
               ><i class="fas fa-delete-left"></i> Remove</button>
             </div>

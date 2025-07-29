@@ -607,3 +607,72 @@ color: var(--btn-text) !important;
   flex: 1;
   min-width: 100px;
 }
+
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  min-height: 100px;
+  background: var(--base);
+  border: 1px solid var(--overlay);
+  border-radius: 6px;
+  padding: 0.8rem;
+  margin-bottom: 0.5rem;
+  align-items: flex-start;
+}
+
+.tag-item {
+  display: inline-flex;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--overlay);
+  border-radius: 16px;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.9rem;
+  gap: 0.4rem;
+  cursor: move;
+  transition: all 0.2s;
+}
+
+.tag-item.focused {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.tag-item.dragging {
+  opacity: 0.5;
+}
+
+.tag-remove {
+  background: none;
+  border: none;
+  color: var(--subtext);
+  cursor: pointer;
+  padding: 0.2rem;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tag-remove:hover {
+  color: var(--red);
+}
+
+.drop-indicator {
+  height: 2px;
+  background-color: var(--accent);
+  position: relative;
+  margin: 5px 0;
+}
+
+.drop-indicator::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  background-color: rgba(var(--accent-rgb), 0.1);
+  border-radius: 4px;
+}
