@@ -1,0 +1,15 @@
+:root {
+  --base: #fbf1c7;
+  --mantle: #f2e5bc;
+  --crust: #ebdbb2;
+  --text: #3c3836;
+  --subtext: #504945;
+  --overlay: #7c6f64;
+  --surface: #d5c4a1;
+  --accent: #fabd2f;
+  --highlight: #fe8019;
+  --green: #98971a;
+  --red: #cc241d;
+  --blue: #458588;
+  --btn-text: var(--base);
+}

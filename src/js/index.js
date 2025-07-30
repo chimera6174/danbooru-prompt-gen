@@ -574,31 +574,32 @@
 
     // Handle unified add (custom tag or selected suggestion)
     function handleUnifiedAdd() {
-      const tag = unifiedInput.value.trim();
-      if (tag) {
-        // Check if we have a highlighted suggestion
-        if (currentSuggestionIndex >= 0) {
-          const items = suggestionsDropdown.querySelectorAll('.suggestion-item');
-          if (items.length > currentSuggestionIndex) {
-            const tagEl = items[currentSuggestionIndex].querySelector('.tag');
-            if (tagEl) {
-              addTagToPrompt(tagEl.textContent);
-              // Clear input and reset suggestions
-              unifiedInput.value = '';
-              suggestionsDropdown.style.display = 'none';
-              currentSuggestionIndex = -1;
-            }
-          }
-        } else {
-          // Add as custom tag
-          addTagToPrompt(tag);
-          // Clear input
-          unifiedInput.value = '';
-          suggestionsDropdown.style.display = 'none';
-        }
-      } else {
+      const raw = unifiedInput.value.trim();
+      if (!raw) {
         showToast("Enter a tag", 'error');
+        return;
       }
+
+      let tagsToAdd = [];
+      if (raw.includes(',')) {
+        tagsToAdd = raw
+          .split(',')
+          .map(t => t.trim())
+          .filter(t => t);
+      } 
+      else if (currentSuggestionIndex >= 0) {
+        const items = suggestionsDropdown.querySelectorAll('.suggestion-item');
+        const tagEl = items[currentSuggestionIndex]?.querySelector('.tag');
+        if (tagEl) tagsToAdd = [tagEl.textContent];
+      } 
+      else {
+        tagsToAdd = [raw];
+      }
+      tagsToAdd.forEach(tag => addTagToPrompt(tag));
+
+      unifiedInput.value = '';
+      suggestionsDropdown.style.display = 'none';
+      currentSuggestionIndex = -1;
     }
 
     // Show suggestions based on input

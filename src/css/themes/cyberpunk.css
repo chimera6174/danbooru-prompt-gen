@@ -1,0 +1,15 @@
+:root {
+  --base: #000000;         /* Deep black backdrop */
+  --mantle: #111111;       /* Slightly lighter dark */
+  --crust: #1a1a1a;
+  --text: #f2e900;         /* Aureolin neon yellow */
+  --subtext: #ffd900;      /* School‑bus yellow accent */
+  --overlay: #03d8f3;      /* Vivid sky‑blue */
+  --surface: #222222;
+  --accent: #f2e900;
+  --highlight: #03d8f3;
+  --green: #00ffcc;        /* teal vibe from “cyberpunk vibes” palette */
+  --red: #ff3c00;          /* vermilion contrast */
+  --blue: #03d8f3;
+  --btn-text: var(--base);
+}
