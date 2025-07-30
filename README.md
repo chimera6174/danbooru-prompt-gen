@@ -13,12 +13,17 @@
 ---
 
 ## ✨ Features
-
-- 🏷️ **Custom Tag Loading** – Load and use your own tag files easily.
-- 🎨 **Theming Support** – Switch between default themes or add your own.
-- 🔍 **Autocomplete Suggestions** – Get tag suggestions as you type.
-- 💾 **Prompt Saving** – Save and manage your favorite tag combinations.
-- 📱 **Mobile Friendly** - Completely responsive design, looks good on every screen.
+   🏷️ **Custom Tag Loading** - Load and use your own tag files easily.
+   
+   🎨 **Theming Support** - Switch between default themes or add your own.
+   
+   🔍 **Autocomplete Suggestions** - Get tag suggestions as you type.
+   
+   🧩 **Interactive Tag System** - Drag or use keyboard shortcuts to rearrange tags.
+   
+   💾 **Prompt Saving** - Save and manage your favorite tag combinations.
+   
+   📱 **Mobile Friendly** - Fully responsive design, looks great on every screen.
 
 ---
 
