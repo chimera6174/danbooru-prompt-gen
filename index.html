@@ -131,7 +131,20 @@
       
       <!-- Unified search/custom tag input -->
       <div class="unified-input-container">
-        <h3><i class="fas fa-search"></i> Add Custom Tag or Search</h3>
+          <h3>
+            <i class="fas fa-search"></i> Add Custom Tag or Search
+            <span class="shortcut-container">
+              <i class="fas fa-question-circle"></i>
+              <div class="shortcut-tooltip">
+                <ul>
+                  <li><kbd>←</kbd> / <kbd>→</kbd> Move Focus</li>
+                  <li><kbd>Shift</kbd> + <kbd>←</kbd> / <kbd>→</kbd> Move Focused Tag</li>
+                  <li><kbd>Backspace</kbd> Remove Focused Tag</li>
+                  <li><kbd>Ctrl</kbd> + <kbd>C</kbd> Copy Prompt</li>
+                </ul>
+              </div>
+            </span>
+          </h3>
           <div class="unified-input-wrapper">
             <input type="text" id="unifiedInput" placeholder="Type to search tags or add custom..." autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="none">
             <div class="action-buttons">
