@@ -127,8 +127,8 @@
         tagEl.addEventListener('click', (e) => {
           if (e.target !== removeBtn) {
             setFocusedIndex(index);
-            if (wasUnifiedInputFocused) unifiedInput.focus();
           }
+          if (wasUnifiedInputFocused) unifiedInput.focus();
         });
         
         tagContainer.appendChild(tagEl);
