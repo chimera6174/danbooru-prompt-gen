@@ -4,6 +4,7 @@
     let descriptionsAvailable = true;
     let backspaceTimer = null;
     let backspaceCount = 0;
+    let wasUnifiedInputFocused = false;
     const categoriesDiv = document.getElementById("categories");
     const tagContainer = document.getElementById("tagContainer");
     const promptField = document.getElementById("promptField");
@@ -89,7 +90,7 @@
           accentColorInput.placeholder = getCurrentAccentHex();
         }
       });
-      
+
       // Set up event listeners
       setupEventListeners();
       updateCounters();
@@ -126,6 +127,7 @@
         tagEl.addEventListener('click', (e) => {
           if (e.target !== removeBtn) {
             setFocusedIndex(index);
+            if (wasUnifiedInputFocused) unifiedInput.focus();
           }
         });
         
@@ -252,6 +254,10 @@
       unifiedInput.addEventListener('focus', function() {
         if (this.value) showSuggestions(this.value);
       });
+
+      tagContainer.addEventListener('mousedown', e => {
+        wasUnifiedInputFocused = (document.activeElement === unifiedInput);
+      }); 
       
       // Close dropdown when clicking outside
       document.addEventListener('click', function(e) {
@@ -270,7 +276,7 @@
       //   suggestionsDropdown.style.display = 'none';
       // });
       
-      promptField.addEventListener('input', updateCounters);
+      addEventListener('input', updateCounters);
     }
     
     // Toggle description visibility
@@ -776,16 +782,17 @@
     window.addEventListener('DOMContentLoaded', () => {
       initApp();
       populateSavedPromptsList();
-    });
-    new Sortable(tagContainer, {
-      animation: 150,                 // smooth slide
-      ghostClass: 'tag-item--ghost',  // CSS class for the dragged clone
-      onEnd: evt => {
-        const moved = currentTags.splice(evt.oldIndex, 1)[0];
-        currentTags.splice(evt.newIndex, 0, moved);
-        focusedTagIndex = evt.newIndex;
-        renderTags();
-      }
+      new Sortable(tagContainer, {
+        animation: 150,                 // smooth slide
+        ghostClass: 'tag-item--ghost',  // CSS class for the dragged clone
+        onEnd: evt => {
+          const moved = currentTags.splice(evt.oldIndex, 1)[0];
+          currentTags.splice(evt.newIndex, 0, moved);
+          focusedTagIndex = evt.newIndex;
+          renderTags();
+          if (wasUnifiedInputFocused) unifiedInput.focus();
+        }
+      });
     });
     // Global for keyboard navigation
     let currentSuggestionIndex = -1;
