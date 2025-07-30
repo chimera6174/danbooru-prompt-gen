@@ -505,7 +505,7 @@
     }
 
     function loadSavedPrompt(name) {
-      const savedPrompts = JSON.parse(localStorage.getItem('savedPrompts') || {});
+      const savedPrompts = JSON.parse(localStorage.getItem('savedPrompts') || '{}');
       const prompt = savedPrompts[name];
       
       if (prompt) {
@@ -521,7 +521,7 @@
         return;
       }
       
-      const savedPrompts = JSON.parse(localStorage.getItem('savedPrompts') || {});
+      const savedPrompts = JSON.parse(localStorage.getItem('savedPrompts') || '{}');
       if (savedPrompts[name]) {
         delete savedPrompts[name];
         localStorage.setItem('savedPrompts', JSON.stringify(savedPrompts));
@@ -536,7 +536,7 @@
       const list = document.getElementById('savedPromptsList');
       list.innerHTML = '';
       
-      const savedPrompts = JSON.parse(localStorage.getItem('savedPrompts') || {});
+      const savedPrompts = JSON.parse(localStorage.getItem('savedPrompts') || '{}');
       
       Object.keys(savedPrompts).sort().forEach(name => {
         const item = document.createElement('div');
@@ -562,7 +562,7 @@
     }
 
     function copySavedPrompt(name) {
-      const savedPrompts = JSON.parse(localStorage.getItem('savedPrompts') || {});
+      const savedPrompts = JSON.parse(localStorage.getItem('savedPrompts') || '{}');
       const prompt = savedPrompts[name];
       
       if (prompt) {
