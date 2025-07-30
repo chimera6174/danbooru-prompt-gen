@@ -255,7 +255,7 @@
         if (this.value) showSuggestions(this.value);
       });
 
-      tagContainer.addEventListener('mousedown', e => {
+      tagContainer.addEventListener('pointerdown', e => {
         wasUnifiedInputFocused = (document.activeElement === unifiedInput);
       }); 
       
