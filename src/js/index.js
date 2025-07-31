@@ -312,27 +312,25 @@
     }
 
     function loadDanbooruTags() {
-      fetch('../../data/default.csv')
-        .then(response => response.text())
-        .then(text => {
-          const lines = text.split('\n').filter(line => line.trim());
-          const tags = lines.map(line => {
-            const [tag, popularity] = line.split(',').map(item => item.trim());
-            return { tag, popularity: parseInt(popularity) || 0 };
-          })
-          .sort((a, b) => b.popularity - a.popularity)
-          .map(item => ({ tag: item.tag, desc: "" }));
-          
-          appTags = { "Danbooru Tags": tags };
-          descriptionsAvailable = false;
-          saveTagsToStorage('csv');
-          renderCategories();
-          toggleDescriptions(false);
-          showToast('Danbooru tags loaded');
+      fetch('./data/danbooru.json')
+        .then(res => res.json())
+        .then(array => {
+          // array is [ { tag: "...", description: "..." }, ... ]
+          const mapped = array.map(e => ({
+            tag: e.tag,
+            desc: e.description  // map "description" → "desc"
+          }));
+          // stick them in one category
+          appTags = { "Danbooru Tags": mapped };
+          descriptionsAvailable = true;        // now we have real descriptions
+          saveTagsToStorage('json');           // remember format
+          renderCategories();                  // rebuild UI
+          toggleDescriptions(descriptionToggle.checked);
+          showToast('Danbooru tags (with descriptions) loaded');
         })
-        .catch(error => {
-          console.error('Error loading Danbooru tags:', error);
-          showToast('Error loading tags', 'error');
+        .catch(err => {
+          console.error('Error loading Danbooru JSON:', err);
+          showToast('Error loading Danbooru tags', 'error');
         });
     }
     
